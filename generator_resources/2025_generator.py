@@ -1,12 +1,6 @@
 import shutil
 import os
 
-with open('2025_template.html', 'r') as file:
-    year_template_content = file.read()
-
-with open('2025_film_template.html', 'r') as file:
-    film_template_content = file.read()
-
 movies = [
     {"name": "Coherence", "specific_resource": ""},
     {"name": "Annie Hall", "specific_resource": ""},
@@ -30,53 +24,63 @@ movies = [
     {"name": "Sherlock Holmes", "specific_resource": ""}
 ]
 
-bullet_list = ""
+def generate_bullet_list():
+    bullet_list = ""
+    for movie in movies:
+        if not movie['specific_resource']:
+            resource = movie['name'].replace(" ", "-").lower()
+        else:
+            resource = movie['specific_resource'].lower()
+        
+        movie['specific_resource'] = resource
+        bullet = "\t\t\t\t\t\t<li><a class=\"nav-"+movie['specific_resource']+"\" href=\"https://tipodan.github.io/2025/"+movie['specific_resource']+"\" title=\""+ movie['name']+"\"><h1>"+ movie['name']+"</h1></a></li>\n"
+        bullet_list += bullet
 
-for movie in movies:
-    if(movie['specific_resource'] == ""):
-        resource = movie['name'].replace(" ", "-") 
-    else:
-        resource = movie['specific_resource']
+    return bullet_list
 
-    movie['specific_resource'] = resource.lower()
+def generate_year_html(movies):
+    bullet_list = generate_bullet_list()
 
-    bullet = "\t\t\t\t\t\t<li><a class=\"nav-"+movie['specific_resource']+"\" href=\"https://tipodan.github.io/2025/"+movie['specific_resource']+"\" title=\""+ movie['name']+"\"><h1>"+ movie['name']+"</h1></a></li>\n"
-    bullet_list = bullet_list + bullet
+    # Open template and replace bullet list
+    with open('2025_template.html', 'r') as file:
+        year_template_content = file.read()
 
-year_template_content = year_template_content.replace("%BULLET_LIST%", bullet_list)
-with open("2025.html", "w") as f:
-    f.write(year_template_content)
+    year_template_content = year_template_content.replace("%BULLET_LIST%", bullet_list)
 
-# Remove destination file if it exists
-if os.path.exists("../2025.html"):
-   os.remove("../2025.html")
-shutil.move("2025.html", "../")
+    # Save file
+    with open("2025.html", "w") as f:
+        f.write(year_template_content)
 
-for movie in movies:
-    self_bullet = "<li><a class=\"nav-"+movie['specific_resource']+"\" href=\"https://tipodan.github.io/2025/"+movie['specific_resource']+"\" title=\""+ movie['name']+"\"><h1>"+ movie['name']+"</h1></a></li>\n"
-    self_bullet_selected = "<li class=\"on\"><a class=\"nav-"+movie['specific_resource']+"\" href=\"https://tipodan.github.io/2025/"+movie['specific_resource']+"\" title=\""+ movie['name']+"\"><h1>"+ movie['name']+"</h1></a></li>\n"
-    bullet_list_with_selected = bullet_list.replace(self_bullet, self_bullet_selected)
+    # Move to destination
+    if os.path.exists("../2025.html"):
+        os.remove("../2025.html")
+    shutil.move("2025.html", "../")
 
-    # Doing the substitution
-    film_content = film_template_content.replace("%TITLE%", movie['name'])
-    film_content = film_content.replace("%RESOURCE%", movie['specific_resource'])
-    film_content = film_content.replace("%BULLET_LIST%", bullet_list_with_selected)
+def generate_movies_html(movies):
+    bullet_list = generate_bullet_list()
     
-    # File generation
-    with open(movie['specific_resource'] + ".html", "w") as f:
-        f.write(film_content)
-        f.close
+    # Open template
+    with open('2025_film_template.html', 'r') as file:
+        film_template_content = file.read()
 
-    if os.path.exists("../2025/"+movie['specific_resource'] + ".html"):
-        os.remove("../2025/"+movie['specific_resource'] + ".html")
-    shutil.move(movie['specific_resource'] + ".html", "../2025/")
+    for movie in movies:
+        self_bullet = "<li><a class=\"nav-"+movie['specific_resource']+"\" href=\"https://tipodan.github.io/2025/"+movie['specific_resource']+"\" title=\""+ movie['name']+"\"><h1>"+ movie['name']+"</h1></a></li>\n"
+        self_bullet_selected = "<li class=\"on\"><a class=\"nav-"+movie['specific_resource']+"\" href=\"https://tipodan.github.io/2025/"+movie['specific_resource']+"\" title=\""+ movie['name']+"\"><h1>"+ movie['name']+"</h1></a></li>\n"
+        bullet_list_with_selected = bullet_list.replace(self_bullet, self_bullet_selected)
 
+        # Doing the substitution in the template
+        film_content = film_template_content.replace("%TITLE%", movie['name'])
+        film_content = film_content.replace("%RESOURCE%", movie['specific_resource'])
+        film_content = film_content.replace("%BULLET_LIST%", bullet_list_with_selected)
+        
+        # File generation
+        with open(movie['specific_resource'] + ".html", "w") as f:
+            f.write(film_content)
 
+        # Move to destination
+        if os.path.exists("../2025/"+movie['specific_resource'] + ".html"):
+            os.remove("../2025/"+movie['specific_resource'] + ".html")
+        shutil.move(movie['specific_resource'] + ".html", "../2025/")
 
-    # Doing the substitution
-    #resultado1 = year_template_content.replace("%TITLE%", movie)
-    #resultado2 = resultado1.replace("%RESOURCE%", resource_lower)
-
-# 2025 File generation
-#with open("2025.html", "w") as f:
-#    f.write(year_template_content)
+generate_year_html(movies)
+generate_movies_html(movies)
