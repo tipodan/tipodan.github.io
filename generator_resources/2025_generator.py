@@ -22,7 +22,8 @@ movies = [
     {"name": "Dogtooth", "specific_resource": ""},
     {"name": "Kinds of Kindness", "specific_resource": ""},
     {"name": "Sherlock Holmes", "specific_resource": ""},
-    {"name": "Alps", "specific_resource": ""}
+    {"name": "Alps", "specific_resource": ""},
+    {"name": "Sherlock Holmes: A Game of Shadows", "specific_resource": "sherlock-holmes-2"}
 ]
 
 def generate_bullet_list():
