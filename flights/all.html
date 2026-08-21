@@ -82,6 +82,41 @@
     .filter-bar .clear-filter:hover {
         text-decoration: underline;
     }
+
+    /* Responsive: card layout on mobile */
+    @media (max-width: 680px) {
+        .flights-table thead {
+            display: none;
+        }
+        .flights-table tbody tr {
+            display: block;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            padding: 10px 12px;
+            background: #fafafa;
+        }
+        .flights-table tbody tr:hover {
+            background: #f3f3f3;
+        }
+        .flights-table td {
+            display: flex;
+            align-items: center;
+            padding: 3px 0;
+            border-bottom: none;
+            font-size: 13px;
+        }
+        .flights-table td::before {
+            content: attr(data-label);
+            font-family: Montserrat, sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #999;
+            width: 70px;
+            flex-shrink: 0;
+        }
+    }
 </style>
 
 </head>
@@ -256,11 +291,11 @@
             var logoSrc = airlineLogos[f['Compañía']] || '';
             var logoImg = logoSrc ? '<img style="width:16px;height:16px;object-fit:contain;display:inline-block;vertical-align:middle;margin-right:6px" src="' + logoSrc + '" alt="">' : '';
             tr.innerHTML =
-                '<td class="clickable" data-filter-type="route" data-filter-value="' + f['Vuelo'] + '">' + f['Vuelo'] + '</td>' +
-                '<td class="clickable" data-filter-type="airport" data-filter-value="' + f['Salida AER'] + '">' + f['Salida'] + ' (' + f['Salida AER'] + ')</td>' +
-                '<td class="clickable" data-filter-type="airport" data-filter-value="' + f['Llegada AER'] + '">' + f['Llegada'] + ' (' + f['Llegada AER'] + ')</td>' +
-                '<td class="clickable" data-filter-type="year" data-filter-value="' + f['Año'] + '">' + date + '</td>' +
-                '<td class="clickable" data-filter-type="airline" data-filter-value="' + f['Compañía'] + '" style="white-space:nowrap">' + logoImg + '<span style="vertical-align:middle">' + f['Compañía'] + '</span></td>';
+                '<td class="clickable" data-label="Route" data-filter-type="route" data-filter-value="' + f['Vuelo'] + '">' + f['Vuelo'] + '</td>' +
+                '<td class="clickable" data-label="From" data-filter-type="airport" data-filter-value="' + f['Salida AER'] + '">' + f['Salida'] + ' (' + f['Salida AER'] + ')</td>' +
+                '<td class="clickable" data-label="To" data-filter-type="airport" data-filter-value="' + f['Llegada AER'] + '">' + f['Llegada'] + ' (' + f['Llegada AER'] + ')</td>' +
+                '<td class="clickable" data-label="Date" data-filter-type="year" data-filter-value="' + f['Año'] + '">' + date + '</td>' +
+                '<td class="clickable" data-label="Airline" data-filter-type="airline" data-filter-value="' + f['Compañía'] + '" style="white-space:nowrap">' + logoImg + '<span style="vertical-align:middle">' + f['Compañía'] + '</span></td>';
             tbody.appendChild(tr);
         });
 

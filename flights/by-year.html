@@ -14,8 +14,7 @@
 
 <style>
     .year-table {
-        width: auto;
-        min-width: 500px;
+        width: 100%;
         border-collapse: collapse;
         font-size: 14px;
         margin-bottom: 30px;
@@ -77,6 +76,22 @@
         display: inline-block;
         vertical-align: middle;
         margin-right: 4px;
+    }
+
+    /* Responsive */
+    @media (max-width: 580px) {
+        .year-table th,
+        .year-table td {
+            padding: 5px 8px;
+            font-size: 13px;
+        }
+        .year-table tr.detail-row td {
+            padding: 4px 8px 4px 16px;
+            font-size: 12px;
+        }
+        .year-table tr.detail-row td:first-child {
+            word-break: break-word;
+        }
     }
 </style>
 

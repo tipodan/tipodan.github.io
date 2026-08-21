@@ -87,6 +87,14 @@ python3 -c "from generator import rebuild; rebuild('2025')"
 3. The generator will auto-detect the new year in the dropdown
 4. Update the navigation in `index.html` and `other.html` to include the new year link
 
+## Airline logos
+
+The airline logos in `flights/logos/` are 32×32 px favicons obtained from each airline's website via the Google Favicon service:
+
+```
+https://www.google.com/s2/favicons?sz=32&domain=<airline-domain>
+```
+
 ## Tech stack
 
 - HTML + CSS + vanilla JavaScript
