@@ -81,11 +81,8 @@ const App = (() => {
   // --- Views ---
   function renderHome() {
     renderNav('/');
-    $main().innerHTML = `
-      <div id="full-frame-wrapper-inline">
-        <img src="./assets/images/favicon.ico" alt="" style="max-width:64px;margin:0 auto;">
-      </div>`;
-    document.title = `Home | ${siteData.title}`;
+    $main().innerHTML = '';
+    document.title = siteData.title;
   }
 
   function renderMovieList(year) {
