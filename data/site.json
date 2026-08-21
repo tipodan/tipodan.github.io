@@ -1,0 +1,67 @@
+{
+  "title": "Dani Teomiro",
+  "nav": [
+    {
+      "label": "Movies seen",
+      "children": "years"
+    },
+    {
+      "label": "Flights taken",
+      "children": [
+        { "label": "All flights", "route": "flights" },
+        { "label": "By year", "route": "flights/by-year" },
+        { "label": "Airlines", "route": "flights/airlines" }
+      ]
+    },
+    {
+      "label": "Other",
+      "route": "other"
+    }
+  ],
+  "airlineLogos": {
+    "Ryanair": "ryanair.png",
+    "Iberia": "iberia.png",
+    "Norwegian": "norwegian.png",
+    "Turkish Airlines": "turkish-airlines.png",
+    "Air Berlin": "air-berlin.png",
+    "KLM": "klm.png",
+    "Binter Canarias": "binter-canarias.png",
+    "Air Europa": "air-europa.png",
+    "S7 Airlines": "s7.png",
+    "Iberia Express": "iberia-express.png",
+    "Delta": "delta.png",
+    "TAP Air Portugal": "tap.png",
+    "EasyJet": "easyjet.png",
+    "Spanair": "spanair.png",
+    "Vueling": "vueling.png",
+    "KLM Cityhopper": "klm.png",
+    "Saudia": "saudia.png",
+    "Air Asia": "airasia.png",
+    "Emirates": "emirates.png"
+  },
+  "airlineColors": {
+    "Ryanair": "#073590",
+    "Iberia": "#d81e05",
+    "Norwegian": "#d81939",
+    "Turkish Airlines": "#c8102e",
+    "Air Berlin": "#e30613",
+    "KLM": "#00a1de",
+    "Binter Canarias": "#00a651",
+    "Air Europa": "#003b73",
+    "S7 Airlines": "#8bc541",
+    "Iberia Express": "#d81e05",
+    "Delta": "#003366",
+    "TAP Air Portugal": "#00956b",
+    "EasyJet": "#ff6600",
+    "Spanair": "#003580",
+    "Vueling": "#ffcd02",
+    "KLM Cityhopper": "#00a1de",
+    "Saudia": "#006633",
+    "Air Asia": "#e42421",
+    "Emirates": "#c8102e"
+  },
+  "movieOfTheYear": {
+    "2024": "marriage-story",
+    "2025": "anora"
+  }
+}

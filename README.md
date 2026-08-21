@@ -1,95 +1,112 @@
 # 🎬 tipodan.github.io
 
-Personal film diary, review site, and flight log. Static pages with yearly logs of watched movies and a record of all flights taken.
+Personal film diary, review site, and flight log. Single-page application that reads all content from JSON data files — no HTML generation needed.
 
 ## Live
 
 [https://tipodan.github.io](https://tipodan.github.io)
 
-## Structure
+## Architecture
 
 ```
 tipodan.github.io/
-├── index.html                  ← Home page
-├── 2024.html                   ← 2024 movie list
-├── 2025.html                   ← 2025 movie list
-├── other.html                  ← Miscellaneous page
-├── 2024/                       ← Individual film pages (2024)
-│   ├── dune-part-two.html
-│   ├── resources/              ← Film posters/images
-│   └── ...
-├── 2025/                       ← Individual film pages (2025)
-│   ├── anora.html
-│   ├── resources/
-│   └── ...
-├── flights/                    ← Flights taken section
-│   ├── all.html                ← Full list of all flights (sortable)
-│   ├── by-year.html            ← Flights per year with % (expandable)
-│   ├── airlines.html           ← Pie chart of airline distribution
-│   └── logos/                  ← Airline logo PNGs (local)
-├── files/                      ← Shared CSS, JS and assets
-│   ├── tipodan.min.css
-│   ├── script.js
-│   ├── flights-data.js         ← Flight data used by all flights pages
-│   └── ...
-└── generator_resources/        ← Page generator (GUI)
-    ├── generator.py            ← Main generator with tkinter GUI
-    ├── 2024_movies.json        ← Movie registry for 2024
-    ├── 2025_movies.json        ← Movie registry for 2025
-    ├── 2025_template.html      ← Year listing template
-    └── 2025_film_template.html ← Individual film page template
+├── index.html                      ← SPA shell (single entry point)
+├── data/
+│   ├── movies.json                 ← All movies, all years
+│   ├── flights.json                ← All flights
+│   └── site.json                   ← Navigation config, airline logos/colors
+├── assets/
+│   ├── css/
+│   │   └── main.css                ← Single unified stylesheet
+│   ├── js/
+│   │   ├── router.js               ← Hash-based SPA router
+│   │   ├── app.js                  ← Data loading, nav rendering, view logic
+│   │   └── flights.js              ← Flights module (tables + chart)
+│   └── images/
+│       ├── movies/
+│       │   ├── 2024/               ← Posters for 2024
+│       │   └── 2025/               ← Posters for 2025
+│       ├── airlines/               ← Airline logo PNGs
+│       ├── traviata.jpg            ← "Other" page image
+│       └── favicon.ico
+└── tools/
+    └── generator.py                ← GUI to add movies (updates JSON + copies poster)
 ```
 
-## Flights section
+## How it works
 
-Three subpages under "Flights taken":
+- `index.html` loads the router, flights module, and app script
+- On page load, the app fetches the three JSON data files
+- The hash router (`#/movies/2025/anora`, `#/flights`, etc.) determines which view to render
+- Views are rendered by injecting HTML into `#main` — no page reloads
+- Navigation is generated dynamically from the data (years auto-detected from movies.json)
 
-- **All flights** — Sortable table with route, origin, destination, date and airline (with logo)
-- **By year** — Sortable table showing flights per year and percentage; click a year to expand and see individual flights
-- **Airlines** — Pie chart with airline brand colors and a legend with logos
+## Routes
 
-Flight data lives in `files/flights-data.js`. To add a new flight, edit that file and add a new entry to the array.
+| Hash | View |
+|------|------|
+| `#/` | Home |
+| `#/movies/:year` | Movie list for a year |
+| `#/movies/:year/:slug` | Individual movie (poster) |
+| `#/flights` | All flights (sortable, filterable table) |
+| `#/flights/by-year` | Flights grouped by year (expandable) |
+| `#/flights/airlines` | Airlines distribution (top 3 + bar chart) |
+| `#/other` | Miscellaneous page |
 
 ## Adding a new movie
 
 Run the GUI generator:
 
 ```bash
-cd generator_resources
+cd tools
 python3 generator.py
 ```
 
-A window will open where you can:
+This will:
+1. Copy the poster to `assets/images/movies/<year>/<slug>.jpg`
+2. Add the entry to `data/movies.json`
 
-1. Select the year (defaults to the latest)
-2. Type the movie name → a slug is generated automatically (editable)
-3. Click "Seleccionar..." to pick the poster image from your PC
-4. Click "Añadir"
+That's it — no HTML regeneration. The SPA picks it up immediately.
 
-The generator will:
-- Rename and copy the poster to `<year>/resources/<slug>.jpg`
-- Add the movie to the `<year>_movies.json` registry
-- Regenerate the year listing page and all individual film pages
+### Adding manually
 
-### Rebuilding pages manually
+Edit `data/movies.json` and add an entry:
 
-If you edit a template, regenerate all pages for a year:
-
-```bash
-cd generator_resources
-python3 -c "from generator import rebuild; rebuild('2025')"
+```json
+{ "year": 2025, "name": "My Movie", "slug": "my-movie" }
 ```
+
+Then place the poster at `assets/images/movies/2025/my-movie.jpg`.
 
 ## Adding a new year
 
-1. Create `<year>/` and `<year>/resources/` directories
-2. Create `generator_resources/<year>_template.html` and `<year>_film_template.html` (copy from an existing year and update)
-3. The generator will auto-detect the new year in the dropdown
-4. Update the navigation in `index.html` and `other.html` to include the new year link
+Nothing to do. Just add movies with the new year number to `data/movies.json`. The navigation will automatically show the new year.
+
+## Adding a new flight
+
+Edit `data/flights.json` and add an entry:
+
+```json
+{
+  "route": "MAD-LIS",
+  "from": "Madrid",
+  "fromCode": "MAD",
+  "to": "Lisboa",
+  "toCode": "LIS",
+  "date": "2026-05-10",
+  "year": 2026,
+  "airline": "Iberia"
+}
+```
+
+## Adding a new airline
+
+1. Add the logo PNG to `assets/images/airlines/<name>.png`
+2. Add the logo filename and brand color to `data/site.json` under `airlineLogos` and `airlineColors`
 
 ## Airline logos
 
-The airline logos in `flights/logos/` are 32×32 px favicons obtained from each airline's website via the Google Favicon service:
+32×32 px favicons from each airline's website:
 
 ```
 https://www.google.com/s2/favicons?sz=32&domain=<airline-domain>
@@ -97,8 +114,21 @@ https://www.google.com/s2/favicons?sz=32&domain=<airline-domain>
 
 ## Tech stack
 
-- HTML + CSS + vanilla JavaScript
-- jQuery + FlexSlider for image galleries
-- Chart.js for the airlines pie chart
-- Python script for page generation from templates
+- HTML + CSS + vanilla JavaScript (no frameworks, no build step)
+- Hash-based SPA router
+- JSON data files as the single source of truth
+- Python GUI for adding movies (optional convenience)
 - Hosted on GitHub Pages
+
+## Documentation
+
+- [📐 Web App Architecture Proposal](./docs/webapp-architecture.md) — Plan para transformar el sitio en una aplicación web con backend, base de datos y panel de admin.
+
+## Key design decisions
+
+- **No build step** — edit JSON, push, done
+- **No dependencies** — no jQuery, no bundler, no npm
+- **Single source of truth** — all data in `data/` as JSON
+- **One CSS file** — no scattered styles, no inline `<style>` blocks
+- **Dynamic navigation** — add a year and it appears everywhere automatically
+- **Zero HTML generation for movies** — the SPA renders from data at runtime
