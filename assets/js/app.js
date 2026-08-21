@@ -35,19 +35,11 @@ const App = (() => {
     const years = getYears();
     const ul = document.createElement('ul');
 
-    // Movies seen
-    const moviesLi = document.createElement('li');
-    moviesLi.innerHTML = '<a class="">Movies seen</a>';
-    const moviesSub = document.createElement('ul');
-    for (const y of years) {
-      const li = document.createElement('li');
-      const route = `#/movies/${y}`;
-      const isActive = activeRoute === `/movies/${y}` || activeRoute.startsWith(`/movies/${y}/`);
-      li.innerHTML = `<a href="${route}" class="${isActive ? 'on' : ''}">&emsp;${y}</a>`;
-      moviesSub.appendChild(li);
-    }
-    moviesLi.appendChild(moviesSub);
-    ul.appendChild(moviesLi);
+    // BTC
+    const btcLi = document.createElement('li');
+    const isBtcActive = activeRoute === '/btc';
+    btcLi.innerHTML = `<a href="#/btc" class="${isBtcActive ? 'on' : ''}">BTC</a>`;
+    ul.appendChild(btcLi);
 
     // Flights taken
     const flightsLi = document.createElement('li');
@@ -67,7 +59,21 @@ const App = (() => {
     flightsLi.appendChild(flightsSub);
     ul.appendChild(flightsLi);
 
-    // Other
+    // Movies seen
+    const moviesLi = document.createElement('li');
+    moviesLi.innerHTML = '<a class="">Movies seen</a>';
+    const moviesSub = document.createElement('ul');
+    for (const y of years) {
+      const li = document.createElement('li');
+      const route = `#/movies/${y}`;
+      const isActive = activeRoute === `/movies/${y}` || activeRoute.startsWith(`/movies/${y}/`);
+      li.innerHTML = `<a href="${route}" class="${isActive ? 'on' : ''}">&emsp;${y}</a>`;
+      moviesSub.appendChild(li);
+    }
+    moviesLi.appendChild(moviesSub);
+    ul.appendChild(moviesLi);
+
+    // Other (always last)
     const otherLi = document.createElement('li');
     const isOtherActive = activeRoute === '/other';
     otherLi.innerHTML = `<a href="#/other" class="${isOtherActive ? 'on' : ''}">Other</a>`;
@@ -251,9 +257,39 @@ const App = (() => {
         <div class="top3" id="top3"></div>
         <h2>Distribution</h2>
         <div class="bar-chart" id="barChart"></div>
+        <div class="waffle-chart" id="waffleChart"></div>
       </div>`;
     document.title = `Airlines | ${siteData.title}`;
     Flights.initAirlinesChart(flightsData, siteData);
+  }
+
+  // --- BTC view ---
+  function renderBtc() {
+    renderNav('/btc');
+    $main().innerHTML = `
+      <div id="contact" class="section">
+        <h1 class="page-title">BTC</h1>
+        <div class="btc-currency-toggle">
+          <button class="btc-currency-btn active" data-currency="eur">EUR</button>
+          <button class="btc-currency-btn" data-currency="usd">USD</button>
+        </div>
+        <div class="btc-header">
+          <span class="btc-price" id="btc-price">--</span>
+          <span class="btc-change" id="btc-change">--</span>
+        </div>
+        <div class="btc-periods">
+          <button class="btc-period-btn" data-days="1">24h</button>
+          <button class="btc-period-btn active" data-days="7">7d</button>
+          <button class="btc-period-btn" data-days="30">30d</button>
+          <button class="btc-period-btn" data-days="90">90d</button>
+          <button class="btc-period-btn" data-days="365">1y</button>
+        </div>
+        <div class="btc-chart-container" id="btc-chart-container">
+          <p>Loading chart...</p>
+        </div>
+      </div>`;
+    document.title = `BTC | ${siteData.title}`;
+    BTC.init();
   }
 
   // --- Fullscreen image viewer ---
@@ -294,6 +330,7 @@ const App = (() => {
     Router.add('/flights', () => renderFlightsAll());
     Router.add('/flights/by-year', () => renderFlightsByYear());
     Router.add('/flights/airlines', () => renderFlightsAirlines());
+    Router.add('/btc', () => renderBtc());
     Router.add('/other', () => renderOther());
     Router.notFound(() => renderHome());
 

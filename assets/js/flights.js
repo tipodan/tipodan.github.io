@@ -271,6 +271,24 @@ const Flights = (() => {
         `<span class="bar-value">${count} (${pct}%)</span>`;
       barChart.appendChild(row);
     });
+
+    // Waffle chart (icon grid)
+    const waffleEl = document.getElementById('waffleChart');
+    labels.forEach((name) => {
+      const count = counts[name];
+      const logo = logoPath(name, site);
+      for (let i = 0; i < count; i++) {
+        const cell = document.createElement('span');
+        cell.className = 'waffle-cell';
+        cell.title = name;
+        if (logo) {
+          cell.innerHTML = `<img src="${logo}" alt="${name}">`;
+        } else {
+          cell.textContent = '✈';
+        }
+        waffleEl.appendChild(cell);
+      }
+    });
   }
 
   return { initAllTable, initByYearTable, initAirlinesChart };
