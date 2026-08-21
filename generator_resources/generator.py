@@ -56,15 +56,25 @@ def save_movies(year, movies):
         json.dump(movies, f, ensure_ascii=False, indent=2)
 
 
-def generate_bullet_list(movies, year):
-    """Genera la lista HTML de enlaces de navegación."""
+def generate_bullet_list(movies, year, from_subdir=False):
+    """
+    Genera la lista HTML de enlaces de navegación.
+
+    Args:
+        from_subdir: Si True, genera hrefs relativos al subdirectorio (./slug).
+                     Si False, genera hrefs desde el root (./<year>/slug).
+    """
     bullet_list = ""
     for movie in movies:
         slug = movie["slug"]
         name = movie["name"]
+        if from_subdir:
+            href = f"./{slug}"
+        else:
+            href = f"./{year}/{slug}"
         bullet = (
             f'\t\t\t\t\t\t<li><a class="nav-{slug}" '
-            f'href="https://tipodan.github.io/{year}/{slug}" '
+            f'href="{href}" '
             f'title="{name}"><h1>{name}</h1></a></li>\n'
         )
         bullet_list += bullet
@@ -77,7 +87,7 @@ def generate_year_html(movies, year):
     if not os.path.exists(template_path):
         return False
 
-    bullet_list = generate_bullet_list(movies, year)
+    bullet_list = generate_bullet_list(movies, year, from_subdir=False)
 
     with open(template_path, "r", encoding="utf-8") as f:
         content = f.read()
@@ -97,7 +107,7 @@ def generate_movies_html(movies, year):
     if not os.path.exists(template_path):
         return False
 
-    bullet_list = generate_bullet_list(movies, year)
+    bullet_list = generate_bullet_list(movies, year, from_subdir=True)
 
     with open(template_path, "r", encoding="utf-8") as f:
         film_template = f.read()
@@ -111,12 +121,12 @@ def generate_movies_html(movies, year):
 
         self_bullet = (
             f'<li><a class="nav-{slug}" '
-            f'href="https://tipodan.github.io/{year}/{slug}" '
+            f'href="./{slug}" '
             f'title="{name}"><h1>{name}</h1></a></li>\n'
         )
         self_bullet_selected = (
             f'<li class="on"><a class="nav-{slug}" '
-            f'href="https://tipodan.github.io/{year}/{slug}" '
+            f'href="./{slug}" '
             f'title="{name}"><h1>{name}</h1></a></li>\n'
         )
         bullet_list_selected = bullet_list.replace(self_bullet, self_bullet_selected)
