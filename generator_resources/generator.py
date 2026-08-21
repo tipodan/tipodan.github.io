@@ -69,9 +69,9 @@ def generate_bullet_list(movies, year, from_subdir=False):
         slug = movie["slug"]
         name = movie["name"]
         if from_subdir:
-            href = f"./{slug}"
+            href = f"./{slug}.html"
         else:
-            href = f"./{year}/{slug}"
+            href = f"./{year}/{slug}.html"
         bullet = (
             f'\t\t\t\t\t\t<li><a class="nav-{slug}" '
             f'href="{href}" '
@@ -121,12 +121,12 @@ def generate_movies_html(movies, year):
 
         self_bullet = (
             f'<li><a class="nav-{slug}" '
-            f'href="./{slug}" '
+            f'href="./{slug}.html" '
             f'title="{name}"><h1>{name}</h1></a></li>\n'
         )
         self_bullet_selected = (
             f'<li class="on"><a class="nav-{slug}" '
-            f'href="./{slug}" '
+            f'href="./{slug}.html" '
             f'title="{name}"><h1>{name}</h1></a></li>\n'
         )
         bullet_list_selected = bullet_list.replace(self_bullet, self_bullet_selected)

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+<title>Flights by Year | Dani Teomiro</title>
+
+<link href="../files/css_002.css" rel="stylesheet">
+<link href="../files/css.css" rel="stylesheet">
+<link rel="stylesheet" href="../files/flexslider.min.css">
+<link rel="stylesheet" href="../files/tipodan.min.css">
+
+<style>
+    .year-table {
+        width: auto;
+        min-width: 500px;
+        border-collapse: collapse;
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+    .year-table th,
+    .year-table td {
+        text-align: left;
+        padding: 5px 14px;
+        border-bottom: 1px solid #eee;
+    }
+    .year-table th {
+        font-family: Montserrat, sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 700;
+        border-bottom: 2px solid #333;
+        cursor: pointer;
+        user-select: none;
+    }
+    .year-table th:hover {
+        color: #666;
+    }
+    .year-table th .sort-arrow {
+        margin-left: 4px;
+        font-size: 10px;
+    }
+    .year-table td:nth-child(2),
+    .year-table td:nth-child(3) {
+        text-align: right;
+    }
+    .year-table th:nth-child(2),
+    .year-table th:nth-child(3) {
+        text-align: right;
+    }
+    .year-table tr.total-row {
+        font-weight: bold;
+        border-top: 2px solid #333;
+    }
+    .year-table tr.year-row td:first-child {
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .year-table tr.year-row td:first-child:hover {
+        color: #666;
+    }
+    .year-table tr.detail-row td {
+        padding: 3px 14px 3px 32px;
+        font-size: 13px;
+        border-bottom: 1px solid #f5f5f5;
+        color: #555;
+    }
+    .year-table tr.detail-row:last-of-type td {
+        border-bottom: 1px solid #eee;
+    }
+    .detail-logo {
+        width: 14px;
+        height: 14px;
+        object-fit: contain;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 4px;
+    }
+</style>
+
+</head>
+<body>
+    <div id="container" class="clear">
+        <header id="header">
+            <h1 id="title"><a href="../" title="Dani Teomiro">Dani Teomiro</a></h1>
+            <nav id="nav" class="nav">
+                <ul>
+                    <li><a class="">Movies seen</a>
+						<ul>
+							<li><a href="../2024.html">&emsp;2024</a></li>
+							<li><a href="../2025.html">&emsp;2025</a></li>
+						</ul>
+					</li>
+                    <li><a class="">Flights taken</a>
+						<ul>
+							<li><a href="../flights/all.html">&emsp;All flights</a></li>
+							<li><a href="../flights/by-year.html" class="on">&emsp;By year</a></li>
+							<li><a href="../flights/airlines.html">&emsp;Airlines</a></li>
+						</ul>
+					</li>
+                    <li><a href="../other.html" class="">Other</a></li>
+                </ul>
+            </nav>
+        </header>
+
+		<div id="main">
+			<div id="contact" class="section">
+                <h1 style="font-size:24px;font-weight:700;font-family:Montserrat,sans-serif;text-transform:uppercase;margin-bottom:24px;text-align:center">Data by Year</h1>
+                <table class="year-table" id="yearTable">
+                    <thead>
+                        <tr>
+                            <th data-col="year">Year <span class="sort-arrow"></span></th>
+                            <th data-col="flights">Flights <span class="sort-arrow"></span></th>
+                            <th data-col="pct">% <span class="sort-arrow"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+			</div>
+		</div>
+        <div id="push-footer"></div>
+	</div>
+
+	<div id="full-frame-wrapper">
+		<div id="full-frame">
+			<img src="../files/favicon.ico">
+			<div class="full-frame-control"></div>
+		</div>
+	</div>
+
+<script src="../files/jquery.min.js"></script>
+<script src="../files/jquery.flexslider-min.js"></script>
+<script src="../files/script.js"></script>
+<script src="../files/modernizr.custom.js"></script>
+<script src="../files/flights-data.js"></script>
+<script>
+(function() {
+    var flights = FLIGHTS_DATA;
+    var total = flights.length;
+
+    var airlineLogos = {
+        'Ryanair': '../flights/logos/ryanair.png',
+        'Iberia': '../flights/logos/iberia.png',
+        'Norwegian': '../flights/logos/norwegian.png',
+        'Turkish Airlines': '../flights/logos/turkish-airlines.png',
+        'Air Berlin': '../flights/logos/air-berlin.png',
+        'KLM': '../flights/logos/klm.png',
+        'Binter Canarias': '../flights/logos/binter-canarias.png',
+        'Air Europa': '../flights/logos/air-europa.png',
+        'S7 Airlines': '../flights/logos/s7.png',
+        'Iberia Express': '../flights/logos/iberia-express.png',
+        'Delta': '../flights/logos/delta.png',
+        'TAP Air Portugal': '../flights/logos/tap.png',
+        'EasyJet': '../flights/logos/easyjet.png',
+        'Spanair': '../flights/logos/spanair.png',
+        'Vueling': '../flights/logos/vueling.png',
+        'KLM Cityhopper': '../flights/logos/klm.png',
+        'Saudia': '../flights/logos/saudia.png',
+        'Air Asia': '../flights/logos/airasia.png',
+        'Emirates': '../flights/logos/emirates.png'
+    };
+
+    // Group flights by year
+    var flightsByYear = {};
+    flights.forEach(function(f) {
+        var y = f['Año'];
+        if (!flightsByYear[y]) flightsByYear[y] = [];
+        flightsByYear[y].push(f);
+    });
+
+    // Build year data array
+    var yearData = Object.keys(flightsByYear).map(function(y) {
+        var count = flightsByYear[y].length;
+        return { year: parseInt(y), flights: count, pct: parseFloat(((count / total) * 100).toFixed(1)) };
+    });
+
+    var currentSort = { col: 'year', dir: 'asc' };
+    var expandedYears = {};
+
+    function renderTable(data) {
+        var tbody = document.querySelector('#yearTable tbody');
+        tbody.innerHTML = '';
+        data.forEach(function(row) {
+            var isExpanded = expandedYears[row.year] || false;
+
+            var tr = document.createElement('tr');
+            tr.className = 'year-row';
+            tr.setAttribute('data-year', row.year);
+            tr.innerHTML =
+                '<td>' + row.year + '</td>' +
+                '<td>' + row.flights + '</td>' +
+                '<td>' + row.pct.toFixed(1) + '%</td>';
+            tbody.appendChild(tr);
+
+            // Detail rows if expanded
+            if (isExpanded) {
+                flightsByYear[row.year].forEach(function(f) {
+                    var detail = document.createElement('tr');
+                    detail.className = 'detail-row';
+                    var date = f['Fecha'] || '';
+                    var logoSrc = airlineLogos[f['Compañía']] || '';
+                    var logoImg = logoSrc ? '<img class="detail-logo" src="' + logoSrc + '" alt="">' : '';
+                    detail.innerHTML =
+                        '<td>' + f['Vuelo'] + ' — ' + f['Salida'] + ' → ' + f['Llegada'] + (date ? ' (' + date + ')' : '') + '</td>' +
+                        '<td colspan="2" style="text-align:left">' + logoImg + '<span style="vertical-align:middle">' + f['Compañía'] + '</span></td>';
+                    tbody.appendChild(detail);
+                });
+            }
+        });
+
+        // Total row
+        var totalRow = document.createElement('tr');
+        totalRow.className = 'total-row';
+        totalRow.innerHTML = '<td>Total</td><td>' + total + '</td><td>100%</td>';
+        tbody.appendChild(totalRow);
+
+        // Attach click handlers
+        var yearRows = tbody.querySelectorAll('.year-row');
+        yearRows.forEach(function(row) {
+            row.querySelector('td:first-child').addEventListener('click', function() {
+                var year = parseInt(row.getAttribute('data-year'));
+                expandedYears[year] = !expandedYears[year];
+                var sorted = sortData(currentSort.col, currentSort.dir);
+                renderTable(sorted);
+            });
+        });
+    }
+
+    function sortData(col, dir) {
+        return yearData.slice().sort(function(a, b) {
+            var va = a[col];
+            var vb = b[col];
+            if (va < vb) return dir === 'asc' ? -1 : 1;
+            if (va > vb) return dir === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+
+    function updateArrows() {
+        var ths = document.querySelectorAll('#yearTable th');
+        ths.forEach(function(th) {
+            var arrow = th.querySelector('.sort-arrow');
+            var col = th.getAttribute('data-col');
+            if (col === currentSort.col) {
+                arrow.textContent = currentSort.dir === 'asc' ? '▲' : '▼';
+            } else {
+                arrow.textContent = '';
+            }
+        });
+    }
+
+    var ths = document.querySelectorAll('#yearTable th');
+    ths.forEach(function(th) {
+        th.addEventListener('click', function() {
+            var col = this.getAttribute('data-col');
+            if (currentSort.col === col) {
+                currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.col = col;
+                currentSort.dir = 'asc';
+            }
+            var sorted = sortData(currentSort.col, currentSort.dir);
+            renderTable(sorted);
+            updateArrows();
+        });
+    });
+
+    // Initial render
+    var sorted = sortData('year', 'asc');
+    renderTable(sorted);
+    updateArrows();
+})();
+</script>
+
+</body></html>

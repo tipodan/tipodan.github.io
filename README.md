@@ -1,6 +1,6 @@
 # 🎬 tipodan.github.io
 
-Personal film diary and review site. Static pages with yearly logs of watched movies.
+Personal film diary, review site, and flight log. Static pages with yearly logs of watched movies and a record of all flights taken.
 
 ## Live
 
@@ -22,9 +22,15 @@ tipodan.github.io/
 │   ├── anora.html
 │   ├── resources/
 │   └── ...
+├── flights/                    ← Flights taken section
+│   ├── all.html                ← Full list of all flights (sortable)
+│   ├── by-year.html            ← Flights per year with % (expandable)
+│   ├── airlines.html           ← Pie chart of airline distribution
+│   └── logos/                  ← Airline logo PNGs (local)
 ├── files/                      ← Shared CSS, JS and assets
 │   ├── tipodan.min.css
 │   ├── script.js
+│   ├── flights-data.js         ← Flight data used by all flights pages
 │   └── ...
 └── generator_resources/        ← Page generator (GUI)
     ├── generator.py            ← Main generator with tkinter GUI
@@ -33,6 +39,16 @@ tipodan.github.io/
     ├── 2025_template.html      ← Year listing template
     └── 2025_film_template.html ← Individual film page template
 ```
+
+## Flights section
+
+Three subpages under "Flights taken":
+
+- **All flights** — Sortable table with route, origin, destination, date and airline (with logo)
+- **By year** — Sortable table showing flights per year and percentage; click a year to expand and see individual flights
+- **Airlines** — Pie chart with airline brand colors and a legend with logos
+
+Flight data lives in `files/flights-data.js`. To add a new flight, edit that file and add a new entry to the array.
 
 ## Adding a new movie
 
@@ -75,5 +91,6 @@ python3 -c "from generator import rebuild; rebuild('2025')"
 
 - HTML + CSS + vanilla JavaScript
 - jQuery + FlexSlider for image galleries
+- Chart.js for the airlines pie chart
 - Python script for page generation from templates
 - Hosted on GitHub Pages

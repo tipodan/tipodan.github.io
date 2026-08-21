@@ -36,7 +36,7 @@ def generate_bullet_list():
             resource = movie['specific_resource'].lower()
         
         movie['specific_resource'] = resource
-        bullet = "\t\t\t\t\t\t<li><a class=\"nav-"+movie['specific_resource']+"\" href=\"https://tipodan.github.io/2025/"+movie['specific_resource']+"\" title=\""+ movie['name']+"\"><h1>"+ movie['name']+"</h1></a></li>\n"
+        bullet = "\t\t\t\t\t\t<li><a class=\"nav-"+movie['specific_resource']+"\" href=\"https://tipodan.github.io/2025/"+movie['specific_resource']+".html\" title=\""+ movie['name']+"\"><h1>"+ movie['name']+"</h1></a></li>\n"
         bullet_list += bullet
 
     return bullet_list
@@ -67,8 +67,8 @@ def generate_movies_html(movies):
         film_template_content = file.read()
 
     for movie in movies:
-        self_bullet = "<li><a class=\"nav-"+movie['specific_resource']+"\" href=\"https://tipodan.github.io/2025/"+movie['specific_resource']+"\" title=\""+ movie['name']+"\"><h1>"+ movie['name']+"</h1></a></li>\n"
-        self_bullet_selected = "<li class=\"on\"><a class=\"nav-"+movie['specific_resource']+"\" href=\"https://tipodan.github.io/2025/"+movie['specific_resource']+"\" title=\""+ movie['name']+"\"><h1>"+ movie['name']+"</h1></a></li>\n"
+        self_bullet = "<li><a class=\"nav-"+movie['specific_resource']+"\" href=\"https://tipodan.github.io/2025/"+movie['specific_resource']+".html\" title=\""+ movie['name']+"\"><h1>"+ movie['name']+"</h1></a></li>\n"
+        self_bullet_selected = "<li class=\"on\"><a class=\"nav-"+movie['specific_resource']+"\" href=\"https://tipodan.github.io/2025/"+movie['specific_resource']+".html\" title=\""+ movie['name']+"\"><h1>"+ movie['name']+"</h1></a></li>\n"
         bullet_list_with_selected = bullet_list.replace(self_bullet, self_bullet_selected)
 
         # Doing the substitution in the template
