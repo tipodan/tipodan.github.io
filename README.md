@@ -26,30 +26,50 @@ tipodan.github.io/
 │   ├── tipodan.min.css
 │   ├── script.js
 │   └── ...
-└── generator_resources/        ← Python page generator
-    ├── 2025_generator.py
-    ├── 2025_template.html
-    └── 2025_film_template.html
+└── generator_resources/        ← Page generator (GUI)
+    ├── generator.py            ← Main generator with tkinter GUI
+    ├── 2024_movies.json        ← Movie registry for 2024
+    ├── 2025_movies.json        ← Movie registry for 2025
+    ├── 2025_template.html      ← Year listing template
+    └── 2025_film_template.html ← Individual film page template
 ```
 
 ## Adding a new movie
 
-1. Edit `generator_resources/2025_generator.py` and add the movie to the `movies` list
-2. Place the poster image in `2025/resources/<slug>.jpg`
-3. Run the generator:
+Run the GUI generator:
 
 ```bash
 cd generator_resources
-python3 2025_generator.py
+python3 generator.py
 ```
 
-This regenerates `2025.html` and all individual film pages from templates.
+A window will open where you can:
+
+1. Select the year (defaults to the latest)
+2. Type the movie name → a slug is generated automatically (editable)
+3. Click "Seleccionar..." to pick the poster image from your PC
+4. Click "Añadir"
+
+The generator will:
+- Rename and copy the poster to `<year>/resources/<slug>.jpg`
+- Add the movie to the `<year>_movies.json` registry
+- Regenerate the year listing page and all individual film pages
+
+### Rebuilding pages manually
+
+If you edit a template, regenerate all pages for a year:
+
+```bash
+cd generator_resources
+python3 -c "from generator import rebuild; rebuild('2025')"
+```
 
 ## Adding a new year
 
-1. Duplicate and adapt the generator, templates, and resource folder for the new year
-2. Create the `<year>/` and `<year>/resources/` directories
-3. Update the navigation in `index.html` and `other.html` to include the new year link
+1. Create `<year>/` and `<year>/resources/` directories
+2. Create `generator_resources/<year>_template.html` and `<year>_film_template.html` (copy from an existing year and update)
+3. The generator will auto-detect the new year in the dropdown
+4. Update the navigation in `index.html` and `other.html` to include the new year link
 
 ## Tech stack
 
