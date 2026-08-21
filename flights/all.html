@@ -92,21 +92,10 @@
         .flights-table td {
             padding: 5px 6px;
         }
-        .flights-table .col-from-full,
-        .flights-table .col-to-full {
+        .flights-table .col-route {
             display: none;
-        }
-        .flights-table .col-from-code,
-        .flights-table .col-to-code {
-            display: table-cell;
         }
         .flights-table .col-airline-name {
-            display: none;
-        }
-    }
-    @media (min-width: 681px) {
-        .flights-table .col-from-code,
-        .flights-table .col-to-code {
             display: none;
         }
     }
@@ -148,11 +137,9 @@
                 <table class="flights-table" id="flightsTable">
                     <thead>
                         <tr>
-                            <th data-col="route">Route <span class="sort-arrow"></span></th>
-                            <th data-col="from" class="col-from-full">From <span class="sort-arrow"></span></th>
-                            <th data-col="from" class="col-from-code">From <span class="sort-arrow"></span></th>
-                            <th data-col="to" class="col-to-full">To <span class="sort-arrow"></span></th>
-                            <th data-col="to" class="col-to-code">To <span class="sort-arrow"></span></th>
+                            <th data-col="route" class="col-route">Route <span class="sort-arrow"></span></th>
+                            <th data-col="from">From <span class="sort-arrow"></span></th>
+                            <th data-col="to">To <span class="sort-arrow"></span></th>
                             <th data-col="date">Date <span class="sort-arrow"></span></th>
                             <th data-col="airline">Airline <span class="sort-arrow"></span></th>
                         </tr>
@@ -286,11 +273,9 @@
             var logoSrc = airlineLogos[f['Compañía']] || '';
             var logoImg = logoSrc ? '<img style="width:16px;height:16px;object-fit:contain;display:inline-block;vertical-align:middle;margin-right:6px" src="' + logoSrc + '" alt="">' : '';
             tr.innerHTML =
-                '<td class="clickable" data-filter-type="route" data-filter-value="' + f['Vuelo'] + '">' + f['Vuelo'] + '</td>' +
-                '<td class="clickable col-from-full" data-filter-type="airport" data-filter-value="' + f['Salida AER'] + '">' + f['Salida'] + ' (' + f['Salida AER'] + ')</td>' +
-                '<td class="clickable col-from-code" data-filter-type="airport" data-filter-value="' + f['Salida AER'] + '">' + f['Salida AER'] + '</td>' +
-                '<td class="clickable col-to-full" data-filter-type="airport" data-filter-value="' + f['Llegada AER'] + '">' + f['Llegada'] + ' (' + f['Llegada AER'] + ')</td>' +
-                '<td class="clickable col-to-code" data-filter-type="airport" data-filter-value="' + f['Llegada AER'] + '">' + f['Llegada AER'] + '</td>' +
+                '<td class="clickable col-route" data-filter-type="route" data-filter-value="' + f['Vuelo'] + '">' + f['Vuelo'] + '</td>' +
+                '<td class="clickable" data-filter-type="airport" data-filter-value="' + f['Salida AER'] + '">' + f['Salida'] + ' (' + f['Salida AER'] + ')</td>' +
+                '<td class="clickable" data-filter-type="airport" data-filter-value="' + f['Llegada AER'] + '">' + f['Llegada'] + ' (' + f['Llegada AER'] + ')</td>' +
                 '<td class="clickable" data-filter-type="year" data-filter-value="' + f['Año'] + '">' + date + '</td>' +
                 '<td class="clickable" data-filter-type="airline" data-filter-value="' + f['Compañía'] + '">' + logoImg + '<span class="col-airline-name" style="vertical-align:middle">' + f['Compañía'] + '</span></td>';
             tbody.appendChild(tr);
