@@ -25,12 +25,13 @@ tipodan.github.io/
 │   └── images/
 │       ├── movies/
 │       │   ├── 2024/               ← Posters for 2024
-│       │   └── 2025/               ← Posters for 2025
+│       │   ├── 2025/               ← Posters for 2025
+│       │   └── 2026/               ← Posters for 2026
 │       ├── airlines/               ← Airline logo PNGs
 │       ├── traviata.jpg            ← "Other" page image
 │       └── favicon.ico
-└── tools/
-    └── generator.py                ← GUI to add movies (updates JSON + copies poster)
+└── docs/
+    └── webapp-architecture.md      ← Web app architecture proposal
 ```
 
 ## How it works
@@ -55,28 +56,15 @@ tipodan.github.io/
 
 ## Adding a new movie
 
-Run the GUI generator:
-
-```bash
-cd tools
-python3 generator.py
-```
-
-This will:
-1. Copy the poster to `assets/images/movies/<year>/<slug>.jpg`
-2. Add the entry to `data/movies.json`
-
-That's it — no HTML regeneration. The SPA picks it up immediately.
-
-### Adding manually
-
 Edit `data/movies.json` and add an entry:
 
 ```json
-{ "year": 2025, "name": "My Movie", "slug": "my-movie" }
+{ "year": 2026, "name": "My Movie", "slug": "my-movie" }
 ```
 
-Then place the poster at `assets/images/movies/2025/my-movie.jpg`.
+Then place the poster at `assets/images/movies/2026/my-movie.jpg`.
+
+Posters are sourced from TMDB in original resolution (≥1000px wide). The workflow for finding and downloading posters is managed via AI assistant (see Kiro steering config).
 
 ## Adding a new year
 
@@ -117,7 +105,7 @@ https://www.google.com/s2/favicons?sz=32&domain=<airline-domain>
 - HTML + CSS + vanilla JavaScript (no frameworks, no build step)
 - Hash-based SPA router
 - JSON data files as the single source of truth
-- Python GUI for adding movies (optional convenience)
+- AI-assisted content management (posters via TMDB)
 - Hosted on GitHub Pages
 
 ## Documentation
