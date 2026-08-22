@@ -100,6 +100,28 @@ Edit `data/flights.json` and add an entry:
 https://www.google.com/s2/favicons?sz=32&domain=<airline-domain>
 ```
 
+## Local development
+
+### Serving locally
+
+```bash
+cd /path/to/tipodan.github.io
+python3 -m http.server 8000
+```
+
+Then open [http://localhost:8000](http://localhost:8000).
+
+### AI-assisted workflow
+
+Content management (adding movies, downloading posters, generating thumbnails) is done via AI assistant (Kiro CLI). The workflow is defined in `.kiro/steering/tmdb-movies.md`.
+
+```bash
+cd /path/to/tipodan.github.io
+kiro chat
+```
+
+Then ask to add movies — the assistant handles TMDB search, poster download, thumbnail generation, and JSON update.
+
 ## Tech stack
 
 - HTML + CSS + vanilla JavaScript (no frameworks, no build step)
