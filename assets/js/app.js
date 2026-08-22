@@ -41,10 +41,13 @@ const App = (() => {
     btcLi.innerHTML = `<a href="#/btc" class="${isBtcActive ? 'on' : ''}">BTC</a>`;
     ul.appendChild(btcLi);
 
-    // Flights taken
+    // Flights
     const flightsLi = document.createElement('li');
-    flightsLi.innerHTML = '<a class="">Flights taken</a>';
+    const isFlightsSection = activeRoute.startsWith('/flights');
+    flightsLi.innerHTML = `<a href="#" class="nav-toggle ${isFlightsSection ? 'open' : ''}">Flights</a>`;
     const flightsSub = document.createElement('ul');
+    flightsSub.classList.add('nav-submenu');
+    if (isFlightsSection) flightsSub.classList.add('nav-submenu--open');
     const flightRoutes = [
       { label: 'All flights', route: '#/flights' },
       { label: 'By year', route: '#/flights/by-year' },
@@ -57,12 +60,27 @@ const App = (() => {
       flightsSub.appendChild(li);
     }
     flightsLi.appendChild(flightsSub);
+    flightsLi.querySelector('.nav-toggle').addEventListener('click', (e) => {
+      e.preventDefault();
+      flightsSub.classList.toggle('nav-submenu--open');
+      e.target.classList.toggle('open');
+    });
     ul.appendChild(flightsLi);
 
-    // Movies seen
+    // Movies
     const moviesLi = document.createElement('li');
-    moviesLi.innerHTML = '<a class="">Movies seen</a>';
+    const isMoviesSection = activeRoute.startsWith('/movies');
+    moviesLi.innerHTML = `<a href="#" class="nav-toggle ${isMoviesSection ? 'open' : ''}">Movies</a>`;
     const moviesSub = document.createElement('ul');
+    moviesSub.classList.add('nav-submenu');
+    if (isMoviesSection) moviesSub.classList.add('nav-submenu--open');
+
+    // "All" link
+    const allLi = document.createElement('li');
+    const isAllActive = activeRoute === '/movies';
+    allLi.innerHTML = `<a href="#/movies" class="${isAllActive ? 'on' : ''}">&emsp;All</a>`;
+    moviesSub.appendChild(allLi);
+
     for (const y of years) {
       const li = document.createElement('li');
       const route = `#/movies/${y}`;
@@ -71,6 +89,11 @@ const App = (() => {
       moviesSub.appendChild(li);
     }
     moviesLi.appendChild(moviesSub);
+    moviesLi.querySelector('.nav-toggle').addEventListener('click', (e) => {
+      e.preventDefault();
+      moviesSub.classList.toggle('nav-submenu--open');
+      e.target.classList.toggle('open');
+    });
     ul.appendChild(moviesLi);
 
     // Other (always last)
@@ -89,6 +112,23 @@ const App = (() => {
     renderNav('/');
     $main().innerHTML = '';
     document.title = siteData.title;
+  }
+
+  function renderMoviesAll() {
+    renderNav('/movies');
+    const movies = moviesData;
+    const posters = movies.map(m => `
+      <a href="#/movies/${m.year}/${m.slug}" class="poster-thumb" title="${m.name} (${m.year})">
+        <img src="./assets/images/movies/${m.year}/${m.slug}.jpg"
+             alt="${m.name}"
+             loading="lazy">
+      </a>`).join('');
+
+    $main().innerHTML = `
+      <div id="film" class="section">
+        <div class="poster-grid">${posters}</div>
+      </div>`;
+    document.title = `All Movies | ${siteData.title}`;
   }
 
   function renderMovieList(year) {
@@ -325,6 +365,7 @@ const App = (() => {
     await loadData();
 
     Router.add('/', () => renderHome());
+    Router.add('/movies', () => renderMoviesAll());
     Router.add('/movies/:year', ({ year }) => renderMovieList(year));
     Router.add('/movies/:year/:slug', ({ year, slug }) => renderMovieDetail(year, slug));
     Router.add('/flights', () => renderFlightsAll());

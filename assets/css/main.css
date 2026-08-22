@@ -77,6 +77,23 @@ body {
   font-size: 14px;
   text-transform: uppercase;
 }
+#nav .nav-toggle { cursor: pointer; }
+#nav .nav-toggle::after {
+  content: '›';
+  display: inline-block;
+  margin-left: 6px;
+  transition: transform 0.2s ease;
+}
+#nav .nav-toggle.open::after {
+  transform: rotate(90deg);
+}
+#nav .nav-submenu {
+  display: none;
+  padding-left: 0;
+}
+#nav .nav-submenu--open {
+  display: block;
+}
 #main {
   font-size: 1.4em;
   padding-left: 320px;
@@ -103,6 +120,28 @@ body {
   font-style: normal;
   font-weight: 700;
   text-transform: uppercase;
+}
+
+/* === Poster grid (All movies) === */
+.poster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+.poster-thumb {
+  display: block;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.poster-thumb:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.poster-thumb img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* === Film detail (poster) === */
