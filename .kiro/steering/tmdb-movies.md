@@ -23,12 +23,30 @@
 8. Download from `https://image.tmdb.org/t/p/original/<path>.jpg`
 9. Save as `assets/images/movies/<year>/<slug>.jpg`
 10. Verify download: check file is JPEG and dimensions >= 1000px wide
-11. Add entry to `data/movies.json`: `{ "year": <year>, "name": "<English name>", "slug": "<slug>" }`
+11. Generate thumbnail (see Thumbnails section below)
+12. Add entry to `data/movies.json`: `{ "year": <year>, "name": "<English name>", "slug": "<slug>" }`
 
 ## Slug rules
 - Lowercase, ASCII only (strip accents)
 - Spaces/special chars → hyphens
 - Strip trailing hyphens
+
+## Thumbnails
+Every poster MUST have a corresponding thumbnail for the "All movies" grid view.
+
+- Location: `assets/images/movies/<year>/thumbs/<slug>.jpg`
+- Width: 300px (height proportional)
+- Quality: JPEG 80%, optimized
+- Generate with Python/Pillow:
+  ```python
+  from PIL import Image
+  img = Image.open(src)
+  ratio = 300 / img.width
+  img_resized = img.resize((300, int(img.height * ratio)), Image.LANCZOS)
+  img_resized.save(dst, "JPEG", quality=80, optimize=True)
+  ```
+- The "All" view (`#/movies`) uses these thumbs via Intersection Observer (lazy loading on scroll)
+- If Pillow is not available, install with: `sudo apt-get install -y python3-pil`
 
 ## Important
 - ALWAYS verify the TMDB movie ID is correct before downloading (check `<title>` tag)

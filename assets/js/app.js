@@ -116,12 +116,12 @@ const App = (() => {
 
   function renderMoviesAll() {
     renderNav('/movies');
-    const movies = moviesData;
+    const movies = [...moviesData].reverse();
     const posters = movies.map(m => `
       <a href="#/movies/${m.year}/${m.slug}" class="poster-thumb" title="${m.name} (${m.year})">
-        <img src="./assets/images/movies/${m.year}/${m.slug}.jpg"
+        <img data-src="./assets/images/movies/${m.year}/thumbs/${m.slug}.jpg"
              alt="${m.name}"
-             loading="lazy">
+             class="poster-lazy">
       </a>`).join('');
 
     $main().innerHTML = `
@@ -129,6 +129,19 @@ const App = (() => {
         <div class="poster-grid">${posters}</div>
       </div>`;
     document.title = `All Movies | ${siteData.title}`;
+
+    // Lazy load with Intersection Observer
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          observer.unobserve(img);
+        }
+      }
+    }, { rootMargin: '200px' });
+
+    document.querySelectorAll('.poster-lazy').forEach(img => observer.observe(img));
   }
 
   function renderMovieList(year) {
