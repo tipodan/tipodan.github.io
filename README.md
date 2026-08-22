@@ -14,6 +14,7 @@ tipodan.github.io/
 ├── data/
 │   ├── movies.json                 ← All movies, all years
 │   ├── flights.json                ← All flights
+│   ├── travel.json                 ← Travel photos by year
 │   └── site.json                   ← Navigation config, airline logos/colors
 ├── assets/
 │   ├── css/
@@ -52,6 +53,7 @@ tipodan.github.io/
 | `#/flights` | All flights (sortable, filterable table) |
 | `#/flights/by-year` | Flights grouped by year (expandable) |
 | `#/flights/airlines` | Airlines distribution (top 3 + bar chart) |
+| `#/travel` | Travel photos grid by year |
 | `#/other` | Miscellaneous page |
 
 ## Adding a new movie

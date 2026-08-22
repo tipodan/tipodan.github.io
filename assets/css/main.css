@@ -221,6 +221,10 @@ article + .nav-projects { margin-top: 24px; }
 
 /* === Fullscreen overlay === */
 body.full-frame { overflow: hidden; }
+body.full-frame-blur #container {
+  filter: blur(8px);
+  transition: filter 0.3s ease;
+}
 #full-frame-wrapper {
   background: #fff;
   display: none;
@@ -229,6 +233,9 @@ body.full-frame { overflow: hidden; }
   top: 0; left: 0;
   width: 100%;
   z-index: 999;
+}
+#full-frame-wrapper.travel-overlay {
+  background: rgba(0, 0, 0, 0.4);
 }
 #full-frame {
   overflow: hidden;
@@ -587,4 +594,63 @@ strong {
   .btc-price { font-size: 24px; }
   .btc-period-btn { padding: 5px 10px; font-size: 10px; margin: 0 2px; }
   .btc-chart-container { height: 240px; }
+}
+
+/* === Travel Section === */
+.wip-badge {
+  display: inline-block;
+  font-family: Montserrat, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #fff;
+  background: #f39c12;
+  padding: 4px 10px;
+  border-radius: 3px;
+  margin-bottom: 24px;
+}
+.travel-year-section {
+  margin-bottom: 40px;
+}
+.travel-year-title {
+  font-family: Montserrat, sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #333;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #333;
+}
+.travel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+.travel-grid-item {
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #e0e0e0;
+  border-radius: 2px;
+}
+.travel-grid-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.travel-grid-item:hover img {
+  transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+  .travel-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+  }
+}
+@media (max-width: 480px) {
+  .travel-year-title { font-size: 14px; }
 }

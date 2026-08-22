@@ -1,0 +1,38 @@
+[
+  {
+    "year": 2015,
+    "photos": [
+      {
+        "src": "assets/images/travel/2015/new-york.jpg",
+        "alt": "New York"
+      }
+    ]
+  },
+  {
+    "year": 2016,
+    "photos": [
+      {
+        "src": "assets/images/travel/2016/norway.jpg",
+        "alt": "Norway"
+      }
+    ]
+  },
+  {
+    "year": 2018,
+    "photos": [
+      {
+        "src": "assets/images/travel/2018/travel-2018.jpg",
+        "alt": "Travel 2018"
+      }
+    ]
+  },
+  {
+    "year": 2019,
+    "photos": [
+      {
+        "src": "assets/images/travel/2019/travel-2019.jpg",
+        "alt": "Travel 2019"
+      }
+    ]
+  }
+]
