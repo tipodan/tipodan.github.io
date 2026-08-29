@@ -2,11 +2,37 @@
 
 Personal film diary, review site, and flight log. Single-page application that reads all content from JSON data files — no HTML generation needed.
 
-## Live
+## Table of contents
+
+### Overview
+- [🔗 Live](#-live)
+- [🏗️ Architecture](#️-architecture)
+- [⚙️ How it works](#️-how-it-works)
+- [🧭 Routes](#-routes)
+- [🛠️ Tech stack](#️-tech-stack)
+- [🧩 Key design decisions](#-key-design-decisions)
+
+### Content management
+- [🎞️ Adding a new movie](#️-adding-a-new-movie)
+- [📅 Adding a new year](#-adding-a-new-year)
+- [✈️ Adding a new flight](#️-adding-a-new-flight)
+- [🛫 Adding a new airline](#-adding-a-new-airline)
+- [🖼️ Airline logos](#️-airline-logos)
+
+### Development
+- [💻 Local development](#-local-development)
+
+### Reference
+- [📚 Documentation](#-documentation)
+- [🚀 Future improvements](#-future-improvements)
+
+---
+
+## 🔗 Live
 
 [https://tipodan.github.io](https://tipodan.github.io)
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 tipodan.github.io/
@@ -14,7 +40,6 @@ tipodan.github.io/
 ├── data/
 │   ├── movies.json                 ← All movies, all years
 │   ├── flights.json                ← All flights
-│   ├── travel.json                 ← Travel photos by year
 │   └── site.json                   ← Navigation config, airline logos/colors
 ├── assets/
 │   ├── css/
@@ -35,15 +60,15 @@ tipodan.github.io/
     └── webapp-architecture.md      ← Web app architecture proposal
 ```
 
-## How it works
+## ⚙️ How it works
 
 - `index.html` loads the router, flights module, and app script
-- On page load, the app fetches the three JSON data files
+- On page load, the app fetches the JSON data files
 - The hash router (`#/movies/2025/anora`, `#/flights`, etc.) determines which view to render
 - Views are rendered by injecting HTML into `#main` — no page reloads
 - Navigation is generated dynamically from the data (years auto-detected from movies.json)
 
-## Routes
+## 🧭 Routes
 
 | Hash | View |
 |------|------|
@@ -53,10 +78,28 @@ tipodan.github.io/
 | `#/flights` | All flights (sortable, filterable table) |
 | `#/flights/by-year` | Flights grouped by year (expandable) |
 | `#/flights/airlines` | Airlines distribution (top 3 + bar chart) |
-| `#/travel` | Travel photos grid by year |
 | `#/other` | Miscellaneous page |
 
-## Adding a new movie
+## 🛠️ Tech stack
+
+- HTML + CSS + vanilla JavaScript (no frameworks, no build step)
+- Hash-based SPA router
+- JSON data files as the single source of truth
+- AI-assisted content management (posters via TMDB)
+- Hosted on GitHub Pages
+
+## 🧩 Key design decisions
+
+- **No build step** — edit JSON, push, done
+- **No dependencies** — no jQuery, no bundler, no npm
+- **Single source of truth** — all data in `data/` as JSON
+- **One CSS file** — no scattered styles, no inline `<style>` blocks
+- **Dynamic navigation** — add a year and it appears everywhere automatically
+- **Zero HTML generation for movies** — the SPA renders from data at runtime
+
+---
+
+## 🎞️ Adding a new movie
 
 Edit `data/movies.json` and add an entry:
 
@@ -68,11 +111,11 @@ Then place the poster at `assets/images/movies/2026/my-movie.jpg`.
 
 Posters are sourced from TMDB in original resolution (≥1000px wide). The workflow for finding and downloading posters is managed via AI assistant (see Kiro steering config).
 
-## Adding a new year
+## 📅 Adding a new year
 
 Nothing to do. Just add movies with the new year number to `data/movies.json`. The navigation will automatically show the new year.
 
-## Adding a new flight
+## ✈️ Adding a new flight
 
 Edit `data/flights.json` and add an entry:
 
@@ -89,12 +132,12 @@ Edit `data/flights.json` and add an entry:
 }
 ```
 
-## Adding a new airline
+## 🛫 Adding a new airline
 
 1. Add the logo PNG to `assets/images/airlines/<name>.png`
 2. Add the logo filename and brand color to `data/site.json` under `airlineLogos` and `airlineColors`
 
-## Airline logos
+## 🖼️ Airline logos
 
 32×32 px favicons from each airline's website:
 
@@ -102,7 +145,9 @@ Edit `data/flights.json` and add an entry:
 https://www.google.com/s2/favicons?sz=32&domain=<airline-domain>
 ```
 
-## Local development
+---
+
+## 💻 Local development
 
 ### Serving locally
 
@@ -124,23 +169,12 @@ kiro chat
 
 Then ask to add movies — the assistant handles TMDB search, poster download, thumbnail generation, and JSON update.
 
-## Tech stack
+---
 
-- HTML + CSS + vanilla JavaScript (no frameworks, no build step)
-- Hash-based SPA router
-- JSON data files as the single source of truth
-- AI-assisted content management (posters via TMDB)
-- Hosted on GitHub Pages
-
-## Documentation
+## 📚 Documentation
 
 - [📐 Web App Architecture Proposal](./docs/webapp-architecture.md) — Plan para transformar el sitio en una aplicación web con backend, base de datos y panel de admin.
 
-## Key design decisions
+## 🚀 Future improvements
 
-- **No build step** — edit JSON, push, done
-- **No dependencies** — no jQuery, no bundler, no npm
-- **Single source of truth** — all data in `data/` as JSON
-- **One CSS file** — no scattered styles, no inline `<style>` blocks
-- **Dynamic navigation** — add a year and it appears everywhere automatically
-- **Zero HTML generation for movies** — the SPA renders from data at runtime
+- [🌍 Travel Section](./docs/travel-section.md) — Galería de fotos de viajes agrupada por año, con grid, fullscreen con blur, y navegación.

@@ -1,6 +1,6 @@
 /**
  * Hash-based SPA Router
- * Routes: #/ #/movies/:year #/movies/:year/:slug #/flights #/flights/by-year #/flights/airlines #/btc #/travel #/other
+ * Routes: #/ #/movies/:year #/movies/:year/:slug #/flights #/flights/by-year #/flights/airlines #/btc #/other
  */
 const Router = (() => {
   const routes = [];
