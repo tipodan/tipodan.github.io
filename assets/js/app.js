@@ -5,19 +5,22 @@ const App = (() => {
   let siteData = null;
   let moviesData = null;
   let flightsData = null;
+  let travelData = null;
   const $main = () => document.getElementById('main');
   const $nav = () => document.getElementById('nav');
 
   // --- Data loading ---
   async function loadData() {
-    const [site, movies, flights] = await Promise.all([
+    const [site, movies, flights, travel] = await Promise.all([
       fetch('./data/site.json').then(r => r.json()),
       fetch('./data/movies.json').then(r => r.json()),
-      fetch('./data/flights.json').then(r => r.json())
+      fetch('./data/flights.json').then(r => r.json()),
+      fetch('./data/travel.json').then(r => r.json())
     ]);
     siteData = site;
     moviesData = movies;
     flightsData = flights;
+    travelData = travel;
   }
 
   function getYears() {
@@ -94,6 +97,12 @@ const App = (() => {
       e.target.classList.toggle('open');
     });
     ul.appendChild(moviesLi);
+
+    // Travel (between Movies and Other)
+    const travelLi = document.createElement('li');
+    const isTravelActive = activeRoute === '/travel';
+    travelLi.innerHTML = `<a href="#/travel" class="${isTravelActive ? 'on' : ''}">Travel</a>`;
+    ul.appendChild(travelLi);
 
     // Other (always last)
     const otherLi = document.createElement('li');
@@ -246,6 +255,60 @@ const App = (() => {
     initFullscreen();
   }
 
+  // --- Travel view ---
+  function renderTravel() {
+    renderNav('/travel');
+    const years = [...travelData].sort((a, b) => b.year - a.year);
+
+    const sections = years.map(yearGroup => {
+      const photos = yearGroup.photos.map(p => `
+        <div class="travel-grid-item">
+          <img src="./${p.src}" alt="${p.alt}" loading="lazy">
+        </div>`).join('');
+      return `
+        <div class="travel-year-section">
+          <h2 class="travel-year-title">${yearGroup.year}</h2>
+          <div class="travel-grid">${photos}</div>
+        </div>`;
+    }).join('');
+
+    $main().innerHTML = `
+      <div id="contact" class="section">
+        <h1 class="page-title">Travel</h1>
+        ${sections}
+      </div>`;
+    document.title = `Travel | ${siteData.title}`;
+    initTravelFullscreen();
+  }
+
+  function initTravelFullscreen() {
+    const wrapper = document.getElementById('full-frame-wrapper');
+    const frameImg = document.getElementById('full-frame').querySelector('img');
+
+    document.querySelectorAll('.travel-grid-item img').forEach(img => {
+      img.style.cursor = 'pointer';
+      img.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        frameImg.src = img.src;
+        wrapper.classList.add('travel-overlay');
+        wrapper.style.display = 'block';
+        document.body.classList.add('full-frame', 'full-frame-blur');
+      });
+    });
+
+    function close() {
+      wrapper.style.display = 'none';
+      wrapper.classList.remove('travel-overlay');
+      document.body.classList.remove('full-frame', 'full-frame-blur');
+    }
+
+    wrapper.addEventListener('click', close);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+  }
+
   // --- Flights views ---
   function renderFlightsAll() {
     renderNav('/flights');
@@ -385,6 +448,7 @@ const App = (() => {
     Router.add('/flights/airlines', () => renderFlightsAirlines());
     Router.add('/btc', () => renderBtc());
     Router.add('/other', () => renderOther());
+    Router.add('/travel', () => renderTravel());
     Router.notFound(() => renderHome());
 
     Router.start();

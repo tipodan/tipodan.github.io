@@ -24,7 +24,6 @@ Personal film diary, review site, and flight log. Single-page application that r
 
 ### Reference
 - [📚 Documentation](#-documentation)
-- [🚀 Future improvements](#-future-improvements)
 
 ---
 
@@ -40,6 +39,7 @@ tipodan.github.io/
 ├── data/
 │   ├── movies.json                 ← All movies, all years
 │   ├── flights.json                ← All flights
+│   ├── travel.json                 ← Travel photos, grouped by year
 │   └── site.json                   ← Navigation config, airline logos/colors
 ├── assets/
 │   ├── css/
@@ -54,6 +54,8 @@ tipodan.github.io/
 │       │   ├── 2025/               ← Posters for 2025
 │       │   └── 2026/               ← Posters for 2026
 │       ├── airlines/               ← Airline logo PNGs
+│       ├── travel/
+│       │   └── 2026/               ← Travel photos for 2026
 │       ├── traviata.jpg            ← "Other" page image
 │       └── favicon.ico
 └── docs/
@@ -78,6 +80,7 @@ tipodan.github.io/
 | `#/flights` | All flights (sortable, filterable table) |
 | `#/flights/by-year` | Flights grouped by year (expandable) |
 | `#/flights/airlines` | Airlines distribution (top 3 + bar chart) |
+| `#/travel` | Travel photo gallery grouped by year |
 | `#/other` | Miscellaneous page |
 
 ## 🛠️ Tech stack
@@ -174,7 +177,3 @@ Then ask to add movies — the assistant handles TMDB search, poster download, t
 ## 📚 Documentation
 
 - [📐 Web App Architecture Proposal](./docs/webapp-architecture.md) — Plan para transformar el sitio en una aplicación web con backend, base de datos y panel de admin.
-
-## 🚀 Future improvements
-
-- [🌍 Travel Section](./docs/travel-section.md) — Galería de fotos de viajes agrupada por año, con grid, fullscreen con blur, y navegación.
