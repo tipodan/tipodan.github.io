@@ -273,7 +273,7 @@ const App = (() => {
     }).join('');
 
     $main().innerHTML = `
-      <div id="contact" class="section">
+      <div id="contact" class="section moments-view">
         <h1 class="page-title">Moments</h1>
         ${sections}
       </div>`;

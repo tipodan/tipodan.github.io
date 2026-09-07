@@ -1,8 +1,8 @@
 # Project Documentation Rules
 
-## README.md must stay in sync
+## README.md and project-overview.md must stay in sync
 
-Whenever any of the following changes occur, update `README.md` accordingly:
+Whenever any of the following changes occur, update **both** `README.md` and `.kiro/steering/project-overview.md` accordingly:
 
 - Files or directories are added or removed
 - Folder structure changes (new year folders, new sections, etc.)
@@ -10,6 +10,8 @@ Whenever any of the following changes occur, update `README.md` accordingly:
 - Tech stack changes (new libraries, tools, or workflows)
 - Key design decisions change
 - Instructions for adding content change (e.g., new steps, removed tools)
+
+`project-overview.md` is the steering file that gives the AI assistant the project's mental model (architecture, routes, stack, data files) at the start of every session. It is a condensed mirror of `README.md`, so any structural change to the project must be reflected in it too.
 
 ## What to update
 

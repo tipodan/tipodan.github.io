@@ -186,9 +186,10 @@ Content management is done mostly via AI assistant (Kiro CLI). The assistant fol
 
 | Steering file | Covers |
 |---------------|--------|
+| `.kiro/steering/project-overview.md` | Project mental model loaded every session: architecture, routes, stack, data files |
 | `.kiro/steering/tmdb-movies.md` | Adding movies: TMDB search, poster download, thumbnail generation, `movies.json` update |
 | `.kiro/steering/moments-images.md` | Adding Moments photos: image analysis, naming convention (`<cc>-<place>-NN.jpg`), folder layout, `moments.json` update |
-| `.kiro/steering/project-docs.md` | Keeping `README.md` in sync when structure, routes, or workflows change |
+| `.kiro/steering/project-docs.md` | Keeping `README.md` and `project-overview.md` in sync when structure, routes, or workflows change |
 
 ```bash
 cd /path/to/tipodan.github.io
