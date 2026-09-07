@@ -56,6 +56,7 @@ tipodan.github.io/
 │       │   └── 2026/               ← Posters for 2026
 │       ├── airlines/               ← Airline logo PNGs
 │       ├── moments/
+│       │   ├── 2022/               ← Moments photos for 2022
 │       │   ├── 2025/               ← Moments photos for 2025
 │       │   └── 2026/               ← Moments photos for 2026
 │       ├── traviata.jpg            ← "Other" page image

@@ -10,5 +10,11 @@
     "photos": [
       { "src": "assets/images/moments/2025/es-fuerteventura-01.jpg", "alt": "Fuerteventura 2025" }
     ]
+  },
+  {
+    "year": 2022,
+    "photos": [
+      { "src": "assets/images/moments/2022/es-caceres-kase-o-jazz-magnetism-01.jpg", "alt": "Kase.O — Jazz Magnetism, Cáceres 2022" }
+    ]
   }
 ]
