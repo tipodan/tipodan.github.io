@@ -18,6 +18,7 @@ Personal film diary, review site, and flight log. Single-page application that r
 - [✈️ Adding a new flight](#️-adding-a-new-flight)
 - [🛫 Adding a new airline](#-adding-a-new-airline)
 - [🖼️ Airline logos](#️-airline-logos)
+- [🌍 Adding a moment (photo)](#-adding-a-moment-photo)
 
 ### Development
 - [💻 Local development](#-local-development)
@@ -39,7 +40,7 @@ tipodan.github.io/
 ├── data/
 │   ├── movies.json                 ← All movies, all years
 │   ├── flights.json                ← All flights
-│   ├── travel.json                 ← Travel photos, grouped by year
+│   ├── moments.json                ← Moments photos, grouped by year
 │   └── site.json                   ← Navigation config, airline logos/colors
 ├── assets/
 │   ├── css/
@@ -54,8 +55,9 @@ tipodan.github.io/
 │       │   ├── 2025/               ← Posters for 2025
 │       │   └── 2026/               ← Posters for 2026
 │       ├── airlines/               ← Airline logo PNGs
-│       ├── travel/
-│       │   └── 2026/               ← Travel photos for 2026
+│       ├── moments/
+│       │   ├── 2025/               ← Moments photos for 2025
+│       │   └── 2026/               ← Moments photos for 2026
 │       ├── traviata.jpg            ← "Other" page image
 │       └── favicon.ico
 └── docs/
@@ -80,7 +82,7 @@ tipodan.github.io/
 | `#/flights` | All flights (sortable, filterable table) |
 | `#/flights/by-year` | Flights grouped by year (expandable) |
 | `#/flights/airlines` | Airlines distribution (top 3 + bar chart) |
-| `#/travel` | Travel photo gallery grouped by year |
+| `#/moments` | Moments photo gallery grouped by year |
 | `#/other` | Miscellaneous page |
 
 ## 🛠️ Tech stack
@@ -147,6 +149,26 @@ Edit `data/flights.json` and add an entry:
 ```
 https://www.google.com/s2/favicons?sz=32&domain=<airline-domain>
 ```
+
+## 🌍 Adding a moment (photo)
+
+Edit `data/moments.json` and add a photo under the matching year (create the
+year block if it does not exist):
+
+```json
+{
+  "year": 2026,
+  "photos": [
+    { "src": "assets/images/moments/2026/my-kuala-lumpur-01.jpg", "alt": "Torres Petronas, Kuala Lumpur 2026" }
+  ]
+}
+```
+
+Place the image at `assets/images/moments/<year>/<cc>-<place>-NN.jpg`, where
+`<cc>` is the two-letter country code (ISO 3166-1 alpha-2, lowercase). Any
+resolution works — images are cropped to a square via `object-fit: cover`.
+The full workflow is managed via AI assistant (see Kiro steering config,
+`moments-images.md`).
 
 ---
 

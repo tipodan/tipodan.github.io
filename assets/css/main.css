@@ -234,7 +234,7 @@ body.full-frame-blur #container {
   width: 100%;
   z-index: 999;
 }
-#full-frame-wrapper.travel-overlay {
+#full-frame-wrapper.moments-overlay {
   background: rgba(0, 0, 0, 0.4);
 }
 #full-frame {
@@ -596,11 +596,11 @@ strong {
   .btc-chart-container { height: 240px; }
 }
 
-/* === Travel Section === */
-.travel-year-section {
+/* === Moments Section === */
+.moments-year-section {
   margin-bottom: 40px;
 }
-.travel-year-title {
+.moments-year-title {
   font-family: Montserrat, sans-serif;
   font-size: 18px;
   font-weight: 800;
@@ -611,33 +611,33 @@ strong {
   padding-bottom: 8px;
   border-bottom: 2px solid #333;
 }
-.travel-grid {
+.moments-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 4px;
 }
-.travel-grid-item {
+.moments-grid-item {
   aspect-ratio: 1;
   overflow: hidden;
   background: #e0e0e0;
   border-radius: 2px;
 }
-.travel-grid-item img {
+.moments-grid-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
-.travel-grid-item:hover img {
+.moments-grid-item:hover img {
   transform: scale(1.05);
 }
 
 @media (max-width: 600px) {
-  .travel-grid {
+  .moments-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 3px;
   }
 }
 @media (max-width: 480px) {
-  .travel-year-title { font-size: 14px; }
+  .moments-year-title { font-size: 14px; }
 }
