@@ -55,3 +55,4 @@ Every poster MUST have a corresponding thumbnail for the "All movies" grid view.
 - Spanish films keep their original name and Spanish poster
 - The SPA auto-detects new years from movies.json — no other code changes needed
 - Update README.md tree if a new year folder is created
+- When editing `README.md`, do NOT hard-wrap lines: keep each paragraph, list item, or table row on a single line (no manual mid-sentence line breaks). See `project-docs.md` for the full documentation writing style.

@@ -165,11 +165,7 @@ year block if it does not exist):
 }
 ```
 
-Place the image at `assets/images/moments/<year>/<cc>-<place>-NN.jpg`, where
-`<cc>` is the two-letter country code (ISO 3166-1 alpha-2, lowercase). Any
-resolution works — images are cropped to a square via `object-fit: cover`.
-The full workflow is managed via AI assistant (see Kiro steering config,
-`moments-images.md`).
+Place the image at `assets/images/moments/<year>/<cc>-<place>-NN.jpg`, where `<cc>` is the two-letter country code (ISO 3166-1 alpha-2, lowercase). Any resolution works — images are cropped to a square via `object-fit: cover`. The full workflow is managed via AI assistant (see Kiro steering config, `moments-images.md`).
 
 ---
 
@@ -186,14 +182,25 @@ Then open [http://localhost:8000](http://localhost:8000).
 
 ### AI-assisted workflow
 
-Content management (adding movies, downloading posters, generating thumbnails) is done via AI assistant (Kiro CLI). The workflow is defined in `.kiro/steering/tmdb-movies.md`.
+Content management is done mostly via AI assistant (Kiro CLI). The assistant follows the steering files in `.kiro/steering/`, which encode the conventions and step-by-step workflows for each content type:
+
+| Steering file | Covers |
+|---------------|--------|
+| `.kiro/steering/tmdb-movies.md` | Adding movies: TMDB search, poster download, thumbnail generation, `movies.json` update |
+| `.kiro/steering/moments-images.md` | Adding Moments photos: image analysis, naming convention (`<cc>-<place>-NN.jpg`), folder layout, `moments.json` update |
+| `.kiro/steering/project-docs.md` | Keeping `README.md` in sync when structure, routes, or workflows change |
 
 ```bash
 cd /path/to/tipodan.github.io
 kiro chat
 ```
 
-Then ask to add movies — the assistant handles TMDB search, poster download, thumbnail generation, and JSON update.
+Then just describe what you want to add, for example:
+
+- *"Add movie X to 2026"* — the assistant searches TMDB, downloads the poster, generates the thumbnail, and updates `movies.json` (see `tmdb-movies.md`).
+- *"Add this photo to Moments under 2025"* — the assistant analyzes the image, proposes a file name, moves/renames it, and updates `moments.json` (see `moments-images.md`).
+
+The assistant asks for confirmation before downloading posters or moving/renaming images, and updates `README.md` whenever the folder structure or a workflow changes.
 
 ---
 
