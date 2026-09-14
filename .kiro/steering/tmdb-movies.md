@@ -19,7 +19,7 @@
    - English: `https://www.themoviedb.org/movie/<id>/images/posters?language=es&image_language=en`
    - Spanish: `https://www.themoviedb.org/movie/<id>/images/posters?language=es`
 6. Extract poster paths from page: `grep -oP '(image\.tmdb\.org/t/p/original/[^"]+\.jpg|\d{3,4}x\d{3,4})'`
-7. Select first poster with width >= 1000px
+7. Select a poster with width >= 1000px. **Preference: choose the full theatrical/official poster that includes credits and technical billing (cast names, director, festival laurels, billing block), not minimalist or teaser variants.** Present the poster options to the user (as images) and let them pick; only fall back to auto-selecting the first suitable one if the user does not want to choose.
 8. Download from `https://image.tmdb.org/t/p/original/<path>.jpg`
 9. Save as `assets/images/movies/<year>/<slug>.jpg`
 10. Verify download: check file is JPEG and dimensions >= 1000px wide
@@ -53,6 +53,7 @@ Every poster MUST have a corresponding thumbnail for the "All movies" grid view.
 - ALWAYS confirm with user before downloading — present movie details (title, year, director, cast, poster link)
 - When there are multiple versions (remakes, reboots), ask which one
 - Spanish films keep their original name and Spanish poster
+- Poster preference: default to the full official poster with credits and technical billing block (cast, director, laurels), not minimalist/teaser art
 - The SPA auto-detects new years from movies.json — no other code changes needed
 - Update README.md tree if a new year folder is created
 - When editing `README.md`, do NOT hard-wrap lines: keep each paragraph, list item, or table row on a single line (no manual mid-sentence line breaks). See `project-docs.md` for the full documentation writing style.
