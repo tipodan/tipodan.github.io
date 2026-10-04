@@ -41,7 +41,6 @@ const App = (() => {
     const btcLi = document.createElement('li');
     const isBtcActive = activeRoute === '/btc';
     btcLi.innerHTML = `<a href="#/btc" class="${isBtcActive ? 'on' : ''}">BTC</a>`;
-    ul.appendChild(btcLi);
 
     // Flights
     const flightsLi = document.createElement('li');
@@ -67,7 +66,6 @@ const App = (() => {
       flightsSub.classList.toggle('nav-submenu--open');
       e.target.classList.toggle('open');
     });
-    ul.appendChild(flightsLi);
 
     // Movies
     const moviesLi = document.createElement('li');
@@ -96,19 +94,35 @@ const App = (() => {
       moviesSub.classList.toggle('nav-submenu--open');
       e.target.classList.toggle('open');
     });
-    ul.appendChild(moviesLi);
 
     // Moments (between Movies and Other)
     const momentsLi = document.createElement('li');
     const isMomentsActive = activeRoute === '/moments';
-    momentsLi.innerHTML = `<a href="#/moments" class="${isMomentsActive ? 'on' : ''}">Moments</a>`;
-    ul.appendChild(momentsLi);
+    momentsLi.innerHTML = `<a href="#/moments" class="${isMomentsActive ? 'on' : ''}">Moments [WIP]</a>`;
+
+    // Ideas
+    const ideasLi = document.createElement('li');
+    const isIdeasActive = activeRoute === '/ideas';
+    ideasLi.innerHTML = `<a href="#/ideas" class="${isIdeasActive ? 'on' : ''}">Ideas</a>`;
+
+    // Training (WIP — not navigable)
+    const trainingLi = document.createElement('li');
+    trainingLi.innerHTML = `<a href="#" class="nav-disabled" aria-disabled="true">Training [WIP]</a>`;
+    trainingLi.querySelector('a').addEventListener('click', (e) => e.preventDefault());
 
     // Other (always last)
     const otherLi = document.createElement('li');
     const isOtherActive = activeRoute === '/other';
     otherLi.innerHTML = `<a href="#/other" class="${isOtherActive ? 'on' : ''}">Other</a>`;
-    ul.appendChild(otherLi);
+
+    // Append in alphabetical order by visible label, Other always last
+    ul.appendChild(btcLi);       // BTC
+    ul.appendChild(flightsLi);   // Flights
+    ul.appendChild(ideasLi);     // Ideas
+    ul.appendChild(momentsLi);   // Moments [WIP]
+    ul.appendChild(moviesLi);    // Movies
+    ul.appendChild(trainingLi);  // Training [WIP]
+    ul.appendChild(otherLi);     // Other (last)
 
     const nav = $nav();
     nav.innerHTML = '';
@@ -255,6 +269,22 @@ const App = (() => {
     initFullscreen();
   }
 
+  // --- Ideas view ---
+  function renderIdeas() {
+    renderNav('/ideas');
+    $main().innerHTML = `
+      <div id="contact" class="section">
+        <h1 class="page-title">Ideas</h1>
+        <ul class="ideas-list">
+          <li><a href="https://medium.com/@vishalpriyadarshi/understanding-the-java-contended-annotation-reducing-false-sharing-for-better-concurrency-deeac5dd1df0" target="_blank" rel="noopener">@Contended</a> — Java annotation that pads a field so it sits on its own cache line, preventing false sharing.</li>
+          <li><a href="https://medium.com/@kaustubh.saha/longadder-e7d4ea79f54f" target="_blank" rel="noopener">LongAdder</a> — High-contention alternative to AtomicLong that spreads the count across multiple cells and sums them on read.</li>
+          <li><a href="https://mechanical-sympathy.blogspot.com/2011/07/false-sharing.html" target="_blank" rel="noopener">False sharing</a> — Performance hit when threads write to distinct variables that share the same cache line, forcing constant invalidations.</li>
+          <li>JMH — Java Microbenchmark Harness: a framework for writing reliable JVM microbenchmarks, handling warmup and compiler optimizations.</li>
+        </ul>
+      </div>`;
+    document.title = `Ideas | ${siteData.title}`;
+  }
+
   // --- Moments view ---
   function renderMoments() {
     renderNav('/moments');
@@ -274,7 +304,7 @@ const App = (() => {
 
     $main().innerHTML = `
       <div id="contact" class="section moments-view">
-        <h1 class="page-title">Moments</h1>
+        <h1 class="page-title">Moments [WORK IN PROGRESS]</h1>
         ${sections}
       </div>`;
     document.title = `Moments | ${siteData.title}`;
@@ -449,6 +479,7 @@ const App = (() => {
     Router.add('/btc', () => renderBtc());
     Router.add('/other', () => renderOther());
     Router.add('/moments', () => renderMoments());
+    Router.add('/ideas', () => renderIdeas());
     Router.notFound(() => renderHome());
 
     Router.start();
