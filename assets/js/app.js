@@ -251,14 +251,12 @@ const App = (() => {
     renderNav('/other');
     $main().innerHTML = `
       <div id="contact" class="section">
-        <h2>This is</h2>
-        <p>A postcard from the paradise</p>
         <article class="clear no-feature">
           <div class="flexslider">
             <ul class="slides">
               <li style="display:list-item;">
-                <img src="./assets/images/traviata.jpg"
-                     data-full-src="./assets/images/traviata.jpg"
+                <img src="./assets/images/dicaprio.png"
+                     data-full-src="./assets/images/dicaprio.png"
                      alt="">
               </li>
             </ul>
