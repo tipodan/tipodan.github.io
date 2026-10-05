@@ -25,7 +25,7 @@ const App = (() => {
 
   function getYears() {
     const years = [...new Set(moviesData.map(m => m.year))];
-    return years.sort((a, b) => a - b);
+    return years.sort((a, b) => b - a);
   }
 
   function getMoviesByYear(year) {

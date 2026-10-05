@@ -10,7 +10,7 @@ const Flights = (() => {
 
   // === All flights table ===
   function initAllTable(flights, site) {
-    let currentSort = { col: 'date', dir: 'asc' };
+    let currentSort = { col: 'date', dir: 'desc' };
     let currentFilter = null;
 
     function getDateValue(f) {
@@ -60,7 +60,10 @@ const Flights = (() => {
         const vb = getSortValue(b, currentSort.col).toString().toLowerCase();
         if (va < vb) return currentSort.dir === 'asc' ? -1 : 1;
         if (va > vb) return currentSort.dir === 'asc' ? 1 : -1;
-        return 0;
+        // Tie-break: preserve original array order (later entries are more recent)
+        const ia = flights.indexOf(a);
+        const ib = flights.indexOf(b);
+        return currentSort.dir === 'asc' ? ia - ib : ib - ia;
       });
 
       const tbody = document.querySelector('#flightsTable tbody');
@@ -145,7 +148,7 @@ const Flights = (() => {
       pct: parseFloat(((flightsByYear[y].length / total) * 100).toFixed(1))
     }));
 
-    let currentSort = { col: 'year', dir: 'asc' };
+    let currentSort = { col: 'year', dir: 'desc' };
     const expandedYears = {};
 
     function sortData(col, dir) {
@@ -219,7 +222,7 @@ const Flights = (() => {
       });
     });
 
-    renderTable(sortData('year', 'asc'));
+    renderTable(sortData(currentSort.col, currentSort.dir));
     updateArrows();
   }
 
