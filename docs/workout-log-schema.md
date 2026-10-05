@@ -73,6 +73,86 @@ CREATE INDEX idx_sessions_workout          ON sessions(workout_id);
 CREATE INDEX idx_exercise_sets_session     ON exercise_sets(session_id);
 ```
 
+## Inserción de datos
+
+El orden de inserción es obligatorio por las claves foráneas:
+`exercises` → `workouts` → `workout_exercises` → `sessions` → `exercise_sets`.
+Usar subconsultas `(SELECT id FROM ... WHERE name = ...)` evita depender de los
+IDs autogenerados y hace los INSERT reutilizables.
+
+### 1. Catálogo de ejercicios (`exercises`)
+
+```sql
+INSERT INTO exercises (name, muscle_group) VALUES
+  ('Sentadilla',        'pierna'),
+  ('Prensa',            'pierna'),
+  ('Press banca',       'pecho'),
+  ('Press militar',     'hombro'),
+  ('Dominadas',         'espalda'),
+  ('Curl bíceps',       'brazo');
+```
+
+`name` es `UNIQUE`: no puedes repetir nombre. `muscle_group` es opcional.
+
+### 2. Entrenos / plantillas (`workouts`)
+
+```sql
+INSERT INTO workouts (name, description) VALUES
+  ('Día de pierna', 'Rutina enfocada en tren inferior'),
+  ('Push A',        'Pecho, hombro y tríceps');
+```
+
+### 3. Ejercicios de cada entreno (`workout_exercises`)
+
+Tabla puente N:M. Restricción `UNIQUE(workout_id, exercise_id)`: no repitas el
+mismo ejercicio en el mismo entreno.
+
+```sql
+-- Día de pierna: sentadilla + prensa
+INSERT INTO workout_exercises (workout_id, exercise_id, position) VALUES
+  ((SELECT id FROM workouts  WHERE name = 'Día de pierna'),
+   (SELECT id FROM exercises WHERE name = 'Sentadilla'), 1),
+  ((SELECT id FROM workouts  WHERE name = 'Día de pierna'),
+   (SELECT id FROM exercises WHERE name = 'Prensa'), 2);
+
+-- Push A: press banca + press militar
+INSERT INTO workout_exercises (workout_id, exercise_id, position) VALUES
+  ((SELECT id FROM workouts  WHERE name = 'Push A'),
+   (SELECT id FROM exercises WHERE name = 'Press banca'), 1),
+  ((SELECT id FROM workouts  WHERE name = 'Push A'),
+   (SELECT id FROM exercises WHERE name = 'Press militar'), 2);
+```
+
+### 4. Sesión real (`sessions`)
+
+Una ejecución del entreno en una fecha concreta:
+
+```sql
+INSERT INTO sessions (workout_id, date, notes) VALUES
+  ((SELECT id FROM workouts WHERE name = 'Día de pierna'),
+   '2026-10-05', 'Buenas sensaciones, subí peso en sentadilla');
+```
+
+### 5. Series realizadas (`exercise_sets`)
+
+Las series cuelgan de la **sesión**, no del entreno. `set_number` numera cada
+serie (1, 2, 3...) y `UNIQUE(session_id, exercise_id, set_number)` evita
+duplicados. `weight` admite decimales o `NULL` (peso corporal); `reps` es
+`NOT NULL`.
+
+```sql
+-- 3 series de sentadilla en la sesión de hoy
+INSERT INTO exercise_sets (session_id, exercise_id, set_number, reps, weight) VALUES
+  ((SELECT id FROM sessions  WHERE date = '2026-10-05'
+      AND workout_id = (SELECT id FROM workouts WHERE name = 'Día de pierna')),
+   (SELECT id FROM exercises WHERE name = 'Sentadilla'), 1, 10, 80.00),
+  ((SELECT id FROM sessions  WHERE date = '2026-10-05'
+      AND workout_id = (SELECT id FROM workouts WHERE name = 'Día de pierna')),
+   (SELECT id FROM exercises WHERE name = 'Sentadilla'), 2,  8, 90.00),
+  ((SELECT id FROM sessions  WHERE date = '2026-10-05'
+      AND workout_id = (SELECT id FROM workouts WHERE name = 'Día de pierna')),
+   (SELECT id FROM exercises WHERE name = 'Sentadilla'), 3,  6, 95.00);
+```
 
 ## Notas de diseño
 
