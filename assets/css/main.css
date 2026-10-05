@@ -323,6 +323,31 @@ strong {
 .flights-table td.clickable { cursor: pointer; }
 .flights-table td.clickable:hover { text-decoration: underline; color: #333; }
 
+/* === Training (workout log) === */
+.training-session { margin-bottom: 36px; }
+.training-session-title {
+  font-family: Montserrat, sans-serif;
+  font-size: 16px;
+  margin: 0 0 6px;
+}
+.training-notes {
+  font-style: italic;
+  color: #666;
+  margin: 0 0 10px;
+}
+.training-table td.training-exercise {
+  font-weight: bold;
+  vertical-align: top;
+}
+.training-table th.training-serie-group {
+  text-align: center;
+  border-left: 1px solid #eee;
+}
+.training-table tbody td { text-align: center; }
+.training-table tbody td.training-exercise { text-align: left; }
+.training-empty { color: #ccc; }
+.training-error { color: #b00; }
+
 /* Year table specifics */
 .year-table td:nth-child(2), .year-table td:nth-child(3),
 .year-table th:nth-child(2), .year-table th:nth-child(3) { text-align: right; }

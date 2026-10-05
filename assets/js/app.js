@@ -105,10 +105,10 @@ const App = (() => {
     const isIdeasActive = activeRoute === '/ideas';
     ideasLi.innerHTML = `<a href="#/ideas" class="${isIdeasActive ? 'on' : ''}">Ideas</a>`;
 
-    // Training (WIP — not navigable)
+    // Training
     const trainingLi = document.createElement('li');
-    trainingLi.innerHTML = `<a href="#" class="nav-disabled" aria-disabled="true">Training [WIP]</a>`;
-    trainingLi.querySelector('a').addEventListener('click', (e) => e.preventDefault());
+    const isTrainingActive = activeRoute === '/training';
+    trainingLi.innerHTML = `<a href="#/training" class="${isTrainingActive ? 'on' : ''}">Training</a>`;
 
     // Other (always last)
     const otherLi = document.createElement('li');
@@ -288,6 +288,18 @@ const App = (() => {
     document.title = `Ideas | ${siteData.title}`;
   }
 
+  // --- Training view ---
+  function renderTraining() {
+    renderNav('/training');
+    $main().innerHTML = `
+      <div id="contact" class="section training-view">
+        <h1 class="page-title">Training</h1>
+        <div id="trainingContent"></div>
+      </div>`;
+    document.title = `Training | ${siteData.title}`;
+    Training.init(document.getElementById('trainingContent'));
+  }
+
   // --- Moments view ---
   function renderMoments() {
     renderNav('/moments');
@@ -416,7 +428,7 @@ const App = (() => {
     renderNav('/btc');
     $main().innerHTML = `
       <div id="contact" class="section">
-        <h1 class="page-title">BTC</h1>
+        <h1 class="page-title">Current Bitcoin Market Price</h1>
         <div class="btc-currency-toggle">
           <button class="btc-currency-btn active" data-currency="eur">EUR</button>
           <button class="btc-currency-btn" data-currency="usd">USD</button>
@@ -483,6 +495,7 @@ const App = (() => {
     Router.add('/other', () => renderOther());
     Router.add('/moments', () => renderMoments());
     Router.add('/ideas', () => renderIdeas());
+    Router.add('/training', () => renderTraining());
     Router.notFound(() => renderHome());
 
     Router.start();
