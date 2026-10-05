@@ -208,3 +208,4 @@ The assistant asks for confirmation before downloading posters or moving/renamin
 ## 📚 Documentation
 
 - [📐 Web App Architecture Proposal](./docs/webapp-architecture.md) — Plan para transformar el sitio en una aplicación web con backend, base de datos y panel de admin.
+- [🏋️ Workout Log — Diseño de base de datos](./docs/workout-log-schema.md) — Esquema relacional para registrar entrenamientos: ejercicios, rutinas, sesiones y series.
