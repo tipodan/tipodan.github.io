@@ -259,6 +259,11 @@ const App = (() => {
                      data-full-src="./assets/images/dicaprio.png"
                      alt="">
               </li>
+              <li style="display:list-item;">
+                <img src="./assets/images/pitt.png"
+                     data-full-src="./assets/images/pitt.png"
+                     alt="">
+              </li>
             </ul>
           </div>
         </article>
