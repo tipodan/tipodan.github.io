@@ -324,6 +324,14 @@ strong {
 .flights-table td.clickable:hover { text-decoration: underline; color: #333; }
 
 /* === Training (workout log) === */
+.training-progress {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto 20px;
+}
+.training-progress canvas {
+  width: 100% !important;
+}
 .training-filter-bar {
   font-family: Montserrat, sans-serif;
   font-size: 11px;
@@ -482,22 +490,24 @@ strong {
     align-items: baseline;
     gap: 4px 18px;
   }
-  #nav > ul > li { display: inline-flex; flex-wrap: wrap; margin-bottom: 0; line-height: 1.3; }
+  #nav > ul > li { display: inline-flex; flex-wrap: nowrap; margin-bottom: 0; line-height: 1.3; }
   #nav > ul > li > a { display: inline; margin-right: 0; }
 
-  /* Open submenu wraps to a full-width row below its parent, laid out horizontally.
-     The parent link stays inline with the preceding items; only the submenu drops
-     to its own row, and it forces the next top-level item onto a new line. */
-  #nav > ul > li > ul.nav-submenu--open {
+  /* Submenu row: sibling <li> that spans the full width, hidden by default */
+  #nav > ul > li.nav-submenu-row {
+    display: none;
+    flex-basis: 100%;
+  }
+  #nav > ul > li.nav-submenu-row--open {
+    display: flex;
+  }
+  #nav > ul > li.nav-submenu-row > ul.nav-submenu--open {
     display: flex;
     flex-wrap: nowrap;
-    flex-basis: 100%;
     gap: 2px 14px;
-    margin-top: 4px;
     padding-left: 0;
   }
-  /* Push the following top-level item onto a new row without moving the open parent */
-  #nav > ul > li:has(> ul.nav-submenu--open) { margin-right: 100%; }
+  #nav > ul > li.nav-break { display: none; }
   #nav > ul > li > ul > li { display: inline-flex; white-space: nowrap; }
   #nav > ul > li > ul > li > a { font-size: 14px; margin: 0; }
 

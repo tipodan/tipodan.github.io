@@ -33,9 +33,38 @@ const App = (() => {
   }
 
   // --- Navigation ---
+
   function renderNav(activeRoute) {
     const years = getYears();
     const ul = document.createElement('ul');
+
+    // Helper: creates a detached submenu <li> (flex-basis:100% in mobile)
+    // that lives as a sibling of its parent <li> in the <ul>.
+    function makeSubLi(submenuUl) {
+      const subLi = document.createElement('li');
+      subLi.className = 'nav-submenu-row';
+      subLi.appendChild(submenuUl);
+      return subLi;
+    }
+
+    // Helper: toggle open/closed a sibling-level submenu row.
+    // Closes any other open submenu first.
+    const submenus = []; // filled after creation: [{ subLi, submenuUl, toggle }]
+    function toggleSubmenu(subLi, submenuUl, toggle) {
+      const isOpen = !submenuUl.classList.contains('nav-submenu--open');
+      // Close all submenus
+      for (const s of submenus) {
+        s.submenuUl.classList.remove('nav-submenu--open');
+        s.subLi.classList.remove('nav-submenu-row--open');
+        s.toggle.classList.remove('open');
+      }
+      // Open the clicked one if it was closed
+      if (isOpen) {
+        submenuUl.classList.add('nav-submenu--open');
+        subLi.classList.add('nav-submenu-row--open');
+        toggle.classList.add('open');
+      }
+    }
 
     // BTC
     const btcLi = document.createElement('li');
@@ -60,12 +89,13 @@ const App = (() => {
       li.innerHTML = `<a href="${fr.route}" class="${isActive ? 'on' : ''}">${fr.label}</a>`;
       flightsSub.appendChild(li);
     }
-    flightsLi.appendChild(flightsSub);
+    const flightsSubLi = makeSubLi(flightsSub);
+    if (isFlightsSection) flightsSubLi.classList.add('nav-submenu-row--open');
     flightsLi.querySelector('.nav-toggle').addEventListener('click', (e) => {
       e.preventDefault();
-      flightsSub.classList.toggle('nav-submenu--open');
-      e.target.classList.toggle('open');
+      toggleSubmenu(flightsSubLi, flightsSub, flightsLi.querySelector('.nav-toggle'));
     });
+    submenus.push({ subLi: flightsSubLi, submenuUl: flightsSub, toggle: flightsLi.querySelector('.nav-toggle') });
 
     // Movies
     const moviesLi = document.createElement('li');
@@ -75,7 +105,6 @@ const App = (() => {
     moviesSub.classList.add('nav-submenu');
     if (isMoviesSection) moviesSub.classList.add('nav-submenu--open');
 
-    // "All" link
     const allLi = document.createElement('li');
     const isAllActive = activeRoute === '/movies';
     allLi.innerHTML = `<a href="#/movies" class="${isAllActive ? 'on' : ''}">All</a>`;
@@ -88,14 +117,15 @@ const App = (() => {
       li.innerHTML = `<a href="${route}" class="${isActive ? 'on' : ''}">${y}</a>`;
       moviesSub.appendChild(li);
     }
-    moviesLi.appendChild(moviesSub);
+    const moviesSubLi = makeSubLi(moviesSub);
+    if (isMoviesSection) moviesSubLi.classList.add('nav-submenu-row--open');
     moviesLi.querySelector('.nav-toggle').addEventListener('click', (e) => {
       e.preventDefault();
-      moviesSub.classList.toggle('nav-submenu--open');
-      e.target.classList.toggle('open');
+      toggleSubmenu(moviesSubLi, moviesSub, moviesLi.querySelector('.nav-toggle'));
     });
+    submenus.push({ subLi: moviesSubLi, submenuUl: moviesSub, toggle: moviesLi.querySelector('.nav-toggle') });
 
-    // Moments (between Movies and Other)
+    // Moments
     const momentsLi = document.createElement('li');
     const isMomentsActive = activeRoute === '/moments';
     momentsLi.innerHTML = `<a href="#/moments" class="${isMomentsActive ? 'on' : ''}">Moments [WIP]</a>`;
@@ -115,14 +145,16 @@ const App = (() => {
     const isOtherActive = activeRoute === '/other';
     otherLi.innerHTML = `<a href="#/other" class="${isOtherActive ? 'on' : ''}">Other</a>`;
 
-    // Append in alphabetical order by visible label, Other always last
-    ul.appendChild(btcLi);       // BTC
-    ul.appendChild(flightsLi);   // Flights
-    ul.appendChild(ideasLi);     // Ideas
-    ul.appendChild(momentsLi);   // Moments [WIP]
-    ul.appendChild(moviesLi);    // Movies
-    ul.appendChild(trainingLi);  // Training [WIP]
-    ul.appendChild(otherLi);     // Other (last)
+    // Top-level items + their submenu rows as siblings in the flex container
+    ul.appendChild(btcLi);
+    ul.appendChild(flightsLi);
+    ul.appendChild(flightsSubLi);   // submenu row, hidden until open
+    ul.appendChild(ideasLi);
+    ul.appendChild(momentsLi);
+    ul.appendChild(moviesLi);
+    ul.appendChild(moviesSubLi);    // submenu row, hidden until open
+    ul.appendChild(trainingLi);
+    ul.appendChild(otherLi);
 
     const nav = $nav();
     nav.innerHTML = '';

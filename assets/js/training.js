@@ -78,11 +78,15 @@ const Training = (() => {
   function render(container, allRows) {
     let sortDir = 'desc';       // date sort direction
     let filter = null;          // null = all; else { type: 'exercise'|'date', value }
+    let progressChart = null;   // Chart.js instance for exercise progress
 
     container.innerHTML = `
       <div class="training-filter-bar" id="trainingFilterBar" style="display:none">
         <span id="trainingFilterText"></span>
         <button type="button" id="trainingClearFilter" class="training-clear">× quitar</button>
+      </div>
+      <div class="training-progress" id="trainingProgress" style="display:none">
+        <canvas id="trainingProgressChart"></canvas>
       </div>
       <table class="flights-table training-table">
         <thead></thead>
@@ -93,6 +97,82 @@ const Training = (() => {
     const tbody = container.querySelector('tbody');
     const filterBar = container.querySelector('#trainingFilterBar');
     const filterText = container.querySelector('#trainingFilterText');
+    const progressEl = container.querySelector('#trainingProgress');
+    const progressCanvas = container.querySelector('#trainingProgressChart');
+
+    // Build progress chart for the currently filtered exercise.
+    function renderProgressChart(exerciseName) {
+      // Gather all rows for this exercise, sorted by date ascending.
+      const exerciseRows = allRows
+        .filter(r => r.exercise === exerciseName)
+        .slice()
+        .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+
+      // Compute mean weight per session (ignore BW sets where weight is null).
+      const points = exerciseRows.map(r => {
+        const weights = [...r.sets.values()]
+          .map(s => s.weight)
+          .filter(w => w !== null && w !== undefined);
+        const avg = weights.length
+          ? weights.reduce((sum, w) => sum + Number(w), 0) / weights.length
+          : null;
+        return { date: r.date, avg };
+      }).filter(p => p.avg !== null);
+
+      if (points.length < 2) {
+        progressEl.style.display = 'none';
+        if (progressChart) { progressChart.destroy(); progressChart = null; }
+        return;
+      }
+
+      progressEl.style.display = 'block';
+      if (progressChart) progressChart.destroy();
+
+      progressChart = new Chart(progressCanvas, {
+        type: 'line',
+        data: {
+          labels: points.map(p => p.date),
+          datasets: [{
+            data: points.map(p => p.avg),
+            borderColor: '#333',
+            backgroundColor: 'rgba(51,51,51,0.08)',
+            borderWidth: 1.5,
+            pointRadius: 3,
+            pointBackgroundColor: '#333',
+            tension: 0.3,
+            fill: true,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: `${exerciseName} — avg weight per session (kg)`,
+              font: { family: 'Montserrat, sans-serif', size: 11, weight: '700' },
+              color: '#333',
+              padding: { bottom: 10 }
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.parsed.y.toFixed(1)} kg`
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { font: { size: 10 }, maxRotation: 45 },
+              grid: { display: false }
+            },
+            y: {
+              ticks: { font: { size: 10 } },
+              grid: { color: '#eee' }
+            }
+          }
+        }
+      });
+    }
 
     // Toggle a filter: clicking the active one clears it.
     function setFilter(type, value) {
@@ -100,6 +180,13 @@ const Training = (() => {
         filter = null;
       } else {
         filter = { type, value };
+      }
+      // Show progress chart only when filtering by exercise.
+      if (filter && filter.type === 'exercise') {
+        renderProgressChart(filter.value);
+      } else {
+        progressEl.style.display = 'none';
+        if (progressChart) { progressChart.destroy(); progressChart = null; }
       }
       renderTable();
     }
@@ -188,6 +275,8 @@ const Training = (() => {
 
     container.querySelector('#trainingClearFilter').addEventListener('click', () => {
       filter = null;
+      progressEl.style.display = 'none';
+      if (progressChart) { progressChart.destroy(); progressChart = null; }
       renderTable();
     });
 
