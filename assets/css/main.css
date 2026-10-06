@@ -519,6 +519,7 @@ strong {
   /* Training table: tighter still on small screens */
   .training-table { font-size: 11px; }
   .training-table th, .training-table td { padding: 4px 5px; }
+  .unit-kg { display: none; }
 }
 @media (max-width: 580px) {
   .year-table th, .year-table td { padding: 5px 8px; font-size: 13px; }

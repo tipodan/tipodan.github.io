@@ -48,7 +48,7 @@ const Training = (() => {
   // --- Formatting helpers ---
   function formatWeight(w) {
     if (w === null || w === undefined) return 'BW'; // bodyweight
-    return `${Number(w).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`;
+    return `${Number(w).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}<span class="unit-kg"> kg</span>`;
   }
 
   // Combined "reps × peso" cell (e.g. "8×90 kg", or "10×BW" for bodyweight).

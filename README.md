@@ -1,4 +1,4 @@
-# 🎬 tipodan.github.io
+ kg # 🎬 tipodan.github.io
 
 Personal film diary, review site, and flight log. Single-page application that reads all content from JSON data files — no HTML generation needed.
 
