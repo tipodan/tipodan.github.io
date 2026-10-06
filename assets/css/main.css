@@ -324,27 +324,48 @@ strong {
 .flights-table td.clickable:hover { text-decoration: underline; color: #333; }
 
 /* === Training (workout log) === */
-.training-session { margin-bottom: 36px; }
-.training-session-title {
+.training-filter-bar {
   font-family: Montserrat, sans-serif;
-  font-size: 16px;
-  margin: 0 0 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 16px;
 }
-.training-notes {
-  font-style: italic;
-  color: #666;
-  margin: 0 0 10px;
+.training-clear {
+  margin-left: 8px;
+  font-family: inherit;
+  font-size: 11px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  background: #fff;
+  padding: 2px 8px;
 }
+.training-clear:hover { color: #666; border-color: #999; }
+.training-table th.training-sortable { cursor: pointer; user-select: none; }
+.training-table th.training-sortable:hover { color: #666; }
 .training-table td.training-exercise {
   font-weight: bold;
   vertical-align: top;
 }
-.training-table th.training-serie-group {
-  text-align: center;
-  border-left: 1px solid #eee;
+.training-table td.training-exercise.clickable { cursor: pointer; }
+.training-table td.training-exercise.clickable:hover {
+  text-decoration: underline;
+  color: #333;
+}
+.training-table td.training-date.clickable { cursor: pointer; }
+.training-table td.training-date.clickable:hover {
+  text-decoration: underline;
+  color: #333;
 }
 .training-table tbody td { text-align: center; }
+.training-table tbody td:first-child,
 .training-table tbody td.training-exercise { text-align: left; }
+/* Separador entre sesiones: borde superior marcado al cambiar de fecha */
+.training-table tbody tr.training-session-start td {
+  border-top: 2px solid #333;
+}
 .training-empty { color: #ccc; }
 .training-error { color: #b00; }
 
