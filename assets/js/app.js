@@ -140,6 +140,11 @@ const App = (() => {
     const isTrainingActive = activeRoute === '/training';
     trainingLi.innerHTML = `<a href="#/training" class="${isTrainingActive ? 'on' : ''}">Training</a>`;
 
+    // Plan
+    const planLi = document.createElement('li');
+    const isPlanActive = activeRoute === '/plan';
+    planLi.innerHTML = `<a href="#/plan" class="${isPlanActive ? 'on' : ''}">Plan</a>`;
+
     // Other (always last)
     const otherLi = document.createElement('li');
     const isOtherActive = activeRoute === '/other';
@@ -153,6 +158,7 @@ const App = (() => {
     ul.appendChild(momentsLi);
     ul.appendChild(moviesLi);
     ul.appendChild(moviesSubLi);    // submenu row, hidden until open
+    ul.appendChild(planLi);
     ul.appendChild(trainingLi);
     ul.appendChild(otherLi);
 
@@ -330,6 +336,17 @@ const App = (() => {
       </div>`;
     document.title = `Training | ${siteData.title}`;
     Training.init(document.getElementById('trainingContent'));
+  }
+
+  function renderPlan() {
+    renderNav('/plan');
+    $main().innerHTML = `
+      <div id="contact" class="section plan-view">
+        <h1 class="page-title">Plan</h1>
+        <div id="planContent"></div>
+      </div>`;
+    document.title = `Plan | ${siteData.title}`;
+    Training.initPlan(document.getElementById('planContent'));
   }
 
   // --- Moments view ---
@@ -528,6 +545,7 @@ const App = (() => {
     Router.add('/moments', () => renderMoments());
     Router.add('/ideas', () => renderIdeas());
     Router.add('/training', () => renderTraining());
+    Router.add('/plan', () => renderPlan());
     Router.notFound(() => renderHome());
 
     Router.start();

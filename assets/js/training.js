@@ -324,5 +324,73 @@ const Training = (() => {
     }
   }
 
-  return { init };
+  // --- Plan: fetch workout templates with sets_plan ---
+  async function fetchPlan() {
+    const sb = getClient();
+    const { data, error } = await sb
+      .from('workout_exercises')
+      .select(`
+        position,
+        sets_plan,
+        workouts ( id, name ),
+        exercises ( name, muscle_group )
+      `)
+      .order('position', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  function renderPlan(container, rows) {
+    // Group by workout, sorted by workout id ascending
+    const workouts = new Map();
+    const sorted = rows.slice().sort((a, b) => (a.workouts?.id ?? 0) - (b.workouts?.id ?? 0));
+    for (const row of sorted) {
+      const wName = row.workouts?.name || '—';
+      const wId   = row.workouts?.id;
+      if (!workouts.has(wId)) workouts.set(wId, { name: wName, exercises: [] });
+      workouts.get(wId).exercises.push({
+        name:      row.exercises?.name || '—',
+        muscle:    row.exercises?.muscle_group || '',
+        sets_plan: row.sets_plan || '',
+        position:  row.position,
+      });
+    }
+
+    const cards = [...workouts.values()].map(w => {
+      const rows = w.exercises.map(ex => `
+        <tr>
+          <td class="plan-exercise">${ex.name}${ex.muscle ? `<span class="plan-muscle">${ex.muscle}</span>` : ''}</td>
+          <td class="plan-sets">${ex.sets_plan || '—'}</td>
+        </tr>`).join('');
+      return `
+        <div class="plan-card">
+          <h2 class="plan-workout-name">${w.name}</h2>
+          <table class="plan-table">
+            <thead>
+              <tr>
+                <th>Exercise</th>
+                <th>Plan</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    }).join('');
+
+    container.innerHTML = cards || '<p>No hay entrenamientos planificados.</p>';
+  }
+
+  async function initPlan(container) {
+    container.innerHTML = '<p>Cargando plan…</p>';
+    try {
+      const rows = await fetchPlan();
+      renderPlan(container, rows);
+    } catch (err) {
+      console.error('[Training] plan load failed:', err);
+      container.innerHTML = `<p class="training-error">No se pudo cargar el plan: ${err.message}</p>`;
+    }
+  }
+
+  return { init, initPlan };
 })();

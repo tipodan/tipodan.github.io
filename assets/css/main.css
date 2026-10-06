@@ -324,6 +324,59 @@ strong {
 .flights-table td.clickable:hover { text-decoration: underline; color: #333; }
 
 /* === Training (workout log) === */
+
+/* === Plan (workout templates) === */
+.plan-view { }
+.plan-card {
+  margin-bottom: 32px;
+}
+.plan-workout-name {
+  font-family: Montserrat, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  color: #333;
+}
+.plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.plan-table th {
+  font-family: Montserrat, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 5px 10px;
+  border-bottom: 2px solid #333;
+}
+.plan-table td {
+  padding: 5px 10px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+.plan-table td.plan-sets {
+  white-space: nowrap;
+  color: #555;
+  width: 90px;
+}
+.plan-muscle {
+  display: block;
+  font-family: Montserrat, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #999;
+  margin-top: 1px;
+}
+@media (max-width: 480px) {
+  .plan-table { font-size: 12px; }
+  .plan-table th, .plan-table td { padding: 4px 6px; }
+  .plan-table td.plan-sets { width: 72px; }
+}
 .training-progress {
   width: 100%;
   max-width: 600px;
