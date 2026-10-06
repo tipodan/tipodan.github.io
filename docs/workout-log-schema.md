@@ -172,3 +172,5 @@ JOIN exercises e ON e.id = s.exercise_id
 WHERE s.session_id = $1
 ORDER BY e.name, s.set_number;
 ```
+
+
