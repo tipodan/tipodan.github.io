@@ -106,7 +106,7 @@ const Training = (() => {
 
     function updateFilterBar() {
       if (filter) {
-        const label = filter.type === 'date' ? 'Fecha' : 'Ejercicio';
+        const label = filter.type === 'date' ? 'Date' : 'Exercise';
         filterText.innerHTML = `${label}: <strong>${filter.value}</strong>`;
         filterBar.style.display = 'block';
       } else {
@@ -125,7 +125,7 @@ const Training = (() => {
         return a.exercise.localeCompare(b.exercise, 'es');
       });
 
-      // Dynamic "Serie N" columns based on the visible rows' max set count.
+      // Dynamic "Set N" columns based on the visible rows' max set count.
       let maxSets = 0;
       for (const r of sorted) {
         if (r.sets.size > maxSets) maxSets = r.sets.size;
@@ -133,18 +133,18 @@ const Training = (() => {
 
       const serieHeaders = [];
       for (let n = 1; n <= maxSets; n++) {
-        serieHeaders.push(`<th>Serie ${n}</th>`);
+        serieHeaders.push(`<th>Set ${n}</th>`);
       }
       const arrow = sortDir === 'asc' ? '▲' : '▼';
       thead.innerHTML = `
         <tr>
-          <th id="trainingDateHeader" class="training-sortable">Fecha <span class="sort-arrow">${arrow}</span></th>
-          <th>Ejercicio</th>
+          <th id="trainingDateHeader" class="training-sortable">Date <span class="sort-arrow">${arrow}</span></th>
+          <th>Exercise</th>
           ${serieHeaders.join('')}
         </tr>`;
 
       if (!sorted.length) {
-        tbody.innerHTML = `<tr><td colspan="${2 + maxSets}" class="training-empty">Sin resultados.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="${2 + maxSets}" class="training-empty">No results.</td></tr>`;
       } else {
         tbody.innerHTML = sorted.map((r, i) => {
           const cells = [];

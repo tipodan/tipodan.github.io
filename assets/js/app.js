@@ -57,7 +57,7 @@ const App = (() => {
     for (const fr of flightRoutes) {
       const li = document.createElement('li');
       const isActive = `#${activeRoute}` === fr.route;
-      li.innerHTML = `<a href="${fr.route}" class="${isActive ? 'on' : ''}">&emsp;${fr.label}</a>`;
+      li.innerHTML = `<a href="${fr.route}" class="${isActive ? 'on' : ''}">${fr.label}</a>`;
       flightsSub.appendChild(li);
     }
     flightsLi.appendChild(flightsSub);
@@ -78,14 +78,14 @@ const App = (() => {
     // "All" link
     const allLi = document.createElement('li');
     const isAllActive = activeRoute === '/movies';
-    allLi.innerHTML = `<a href="#/movies" class="${isAllActive ? 'on' : ''}">&emsp;All</a>`;
+    allLi.innerHTML = `<a href="#/movies" class="${isAllActive ? 'on' : ''}">All</a>`;
     moviesSub.appendChild(allLi);
 
     for (const y of years) {
       const li = document.createElement('li');
       const route = `#/movies/${y}`;
       const isActive = activeRoute === `/movies/${y}` || activeRoute.startsWith(`/movies/${y}/`);
-      li.innerHTML = `<a href="${route}" class="${isActive ? 'on' : ''}">&emsp;${y}</a>`;
+      li.innerHTML = `<a href="${route}" class="${isActive ? 'on' : ''}">${y}</a>`;
       moviesSub.appendChild(li);
     }
     moviesLi.appendChild(moviesSub);
