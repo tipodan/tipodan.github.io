@@ -79,11 +79,16 @@ const Training = (() => {
     let sortDir = 'desc';       // date sort direction
     let filter = null;          // null = all; else { type: 'exercise'|'date', value }
     let progressChart = null;   // Chart.js instance for exercise progress
+    let chartEnabled = window.innerWidth > 900; // auto-on on desktop, off on mobile
 
     container.innerHTML = `
       <div class="training-filter-bar" id="trainingFilterBar" style="display:none">
         <span id="trainingFilterText"></span>
         <button type="button" id="trainingClearFilter" class="training-clear">× quitar</button>
+        <label class="training-chart-toggle" id="trainingChartToggle" style="display:none">
+          <input type="checkbox" id="trainingChartCheck" ${chartEnabled ? 'checked' : ''}>
+          chart
+        </label>
       </div>
       <div class="training-progress" id="trainingProgress" style="display:none">
         <canvas id="trainingProgressChart"></canvas>
@@ -98,6 +103,20 @@ const Training = (() => {
     const filterBar = container.querySelector('#trainingFilterBar');
     const filterText = container.querySelector('#trainingFilterText');
     const progressEl = container.querySelector('#trainingProgress');
+    const chartToggleLabel = container.querySelector('#trainingChartToggle');
+    const chartCheck = container.querySelector('#trainingChartCheck');
+
+    chartCheck.addEventListener('change', () => {
+      chartEnabled = chartCheck.checked;
+      if (filter && filter.type === 'exercise') {
+        if (chartEnabled) {
+          renderProgressChart(filter.value);
+        } else {
+          progressEl.style.display = 'none';
+          if (progressChart) { progressChart.destroy(); progressChart = null; }
+        }
+      }
+    });
     const progressCanvas = container.querySelector('#trainingProgressChart');
 
     // Build progress chart for the currently filtered exercise.
@@ -181,10 +200,14 @@ const Training = (() => {
       } else {
         filter = { type, value };
       }
-      // Show progress chart only when filtering by exercise.
+      // Show progress chart only when filtering by exercise and chart is enabled.
       if (filter && filter.type === 'exercise') {
-        renderProgressChart(filter.value);
+        chartToggleLabel.style.display = '';
+        if (chartEnabled) {
+          renderProgressChart(filter.value);
+        }
       } else {
+        chartToggleLabel.style.display = 'none';
         progressEl.style.display = 'none';
         if (progressChart) { progressChart.destroy(); progressChart = null; }
       }
@@ -275,6 +298,7 @@ const Training = (() => {
 
     container.querySelector('#trainingClearFilter').addEventListener('click', () => {
       filter = null;
+      chartToggleLabel.style.display = 'none';
       progressEl.style.display = 'none';
       if (progressChart) { progressChart.destroy(); progressChart = null; }
       renderTable();
