@@ -75,7 +75,7 @@ const Training = (() => {
   }
 
   // --- Rendering ---
-  function render(container, allRows) {
+  function render(container, allRows, initialExercise) {
     let sortDir = 'desc';       // date sort direction
     let filter = null;          // null = all; else { type: 'exercise'|'date', value }
     let progressChart = null;   // Chart.js instance for exercise progress
@@ -304,11 +304,14 @@ const Training = (() => {
       renderTable();
     });
 
-    renderTable();
+    // Apply an initial exercise filter when navigated to from the Plan page.
+    if (initialExercise && allRows.some(r => r.exercise === initialExercise)) {
+      setFilter('exercise', initialExercise);
+    } else {
+      renderTable();
+    }
   }
-
-  // Public entry point: load data and render into the given container.
-  async function init(container) {
+  async function init(container, initialExercise) {
     container.innerHTML = '<p>Cargando entrenos…</p>';
     try {
       const sessions = await fetchSessions();
@@ -317,7 +320,7 @@ const Training = (() => {
         container.innerHTML = '<p>No hay sesiones registradas todavía.</p>';
         return;
       }
-      render(container, rows);
+      render(container, rows, initialExercise);
     } catch (err) {
       console.error('[Training] load failed:', err);
       container.innerHTML = `<p class="training-error">No se pudieron cargar los entrenos: ${err.message}</p>`;
@@ -360,7 +363,7 @@ const Training = (() => {
     const cards = [...workouts.values()].map(w => {
       const rows = w.exercises.map(ex => `
         <tr>
-          <td class="plan-exercise">${ex.name}${ex.muscle ? `<span class="plan-muscle">${ex.muscle}</span>` : ''}</td>
+          <td class="plan-exercise"><a href="#/training/${encodeURIComponent(ex.name)}" class="plan-exercise-link">${ex.name}</a>${ex.muscle ? `<span class="plan-muscle">${ex.muscle}</span>` : ''}</td>
           <td class="plan-sets">${ex.sets_plan || '—'}</td>
         </tr>`).join('');
       return `

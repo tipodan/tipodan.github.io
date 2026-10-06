@@ -327,7 +327,7 @@ const App = (() => {
   }
 
   // --- Training view ---
-  function renderTraining() {
+  function renderTraining(initialExercise) {
     renderNav('/training');
     $main().innerHTML = `
       <div id="contact" class="section training-view">
@@ -335,7 +335,7 @@ const App = (() => {
         <div id="trainingContent"></div>
       </div>`;
     document.title = `Training | ${siteData.title}`;
-    Training.init(document.getElementById('trainingContent'));
+    Training.init(document.getElementById('trainingContent'), initialExercise);
   }
 
   function renderPlan() {
@@ -545,6 +545,7 @@ const App = (() => {
     Router.add('/moments', () => renderMoments());
     Router.add('/ideas', () => renderIdeas());
     Router.add('/training', () => renderTraining());
+    Router.add('/training/:exercise', ({ exercise }) => renderTraining(exercise));
     Router.add('/plan', () => renderPlan());
     Router.notFound(() => renderHome());
 

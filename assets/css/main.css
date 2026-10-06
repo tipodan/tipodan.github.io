@@ -372,6 +372,14 @@ strong {
   color: #999;
   margin-top: 1px;
 }
+.plan-exercise-link {
+  color: inherit;
+  text-decoration: none;
+}
+.plan-exercise-link:hover {
+  text-decoration: underline;
+  color: #333;
+}
 @media (max-width: 480px) {
   .plan-table { font-size: 12px; }
   .plan-table th, .plan-table td { padding: 4px 6px; }
