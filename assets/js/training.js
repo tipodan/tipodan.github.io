@@ -621,10 +621,10 @@ const Training = (() => {
           const repsVal = cell && cell.reps != null ? cell.reps : '';
           const weightVal = cell && cell.weight != null ? cell.weight : '';
           cells.push(`
-            <td><input type="number" min="0" step="1" class="register-reps"
-                       data-exercise="${ex.id}" data-set="${n}" value="${repsVal}"></td>
-            <td><input type="number" min="0" step="0.25" class="register-weight"
-                       data-exercise="${ex.id}" data-set="${n}" value="${weightVal}"></td>`);
+            <td class="register-cell-reps"><input type="number" min="0" step="1" class="register-reps"
+                       data-exercise="${ex.id}" data-set="${n}" value="${repsVal}" placeholder="reps"></td>
+            <td class="register-cell-weight"><input type="number" min="0" step="0.25" class="register-weight"
+                       data-exercise="${ex.id}" data-set="${n}" value="${weightVal}" placeholder="kg"></td>`);
         }
         return `
           <tr>

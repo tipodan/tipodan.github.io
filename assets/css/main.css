@@ -540,6 +540,39 @@ strong {
   color: #333;
 }
 
+/* Register grid — mobile: stack each exercise as name + 3 rows of (reps | kg). */
+@media (max-width: 600px) {
+  .register-sets-scroll { overflow-x: visible; }
+  .register-table { width: 100%; border-collapse: collapse; }
+  /* Hide the Serie/reps/kg header row; placeholders label the inputs instead. */
+  .register-table thead { display: none; }
+  /* Each exercise row becomes a 2-column grid block. */
+  .register-table tbody tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #333;
+  }
+  .register-table tbody td { display: block; border: none; padding: 0; }
+  /* Exercise name spans the full width above its sets. */
+  .register-table td.register-exercise {
+    grid-column: 1 / -1;
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: 2px;
+  }
+  /* reps/kg inputs fill their cell; the 6 cells flow as 3 rows of 2 columns. */
+  .register-table td.register-cell-reps input,
+  .register-table td.register-cell-weight input {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 14px;
+    padding: 8px 6px;
+  }
+}
+
 /* Year table specifics */
 .year-table td:nth-child(2), .year-table td:nth-child(3),
 .year-table th:nth-child(2), .year-table th:nth-child(3) { text-align: right; }

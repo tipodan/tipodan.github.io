@@ -208,6 +208,8 @@ The **Register** view (`#/training/register`) records a workout session:
 3. **Guardar sesión** upserts the filled sets into `exercise_sets` (can be pressed multiple times to keep saving as you go). Only sets with a reps value are saved; an empty weight means bodyweight (`NULL`).
 4. **Cerrar sesión** performs a final save, stamps the session's `finished_at`, and returns to the Data view.
 
+On mobile (≤600px) the Register grid reflows so each exercise shows its name with its 3 sets stacked as rows of two columns (reps | kg), fitting the screen width without horizontal scroll.
+
 Sets are upserted on the `UNIQUE(session_id, exercise_id, set_number)` constraint (`Prefer: resolution=merge-duplicates`), so re-saving updates the existing series instead of duplicating them. The `sessions` table has a `finished_at TIMESTAMPTZ` column (NULL = not closed yet) that is set when the session is closed.
 
 ### Resuming an open session
