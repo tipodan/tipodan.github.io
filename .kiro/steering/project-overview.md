@@ -24,22 +24,25 @@ tipodan.github.io/
 │   │   ├── router.js               ← Hash-based SPA router
 │   │   ├── app.js                  ← Data loading, nav rendering, view logic
 │   │   ├── flights.js              ← Flights module (tables + chart)
-│   │   └── btc.js                  ← BTC widget/module
+│   │   ├── btc.js                  ← BTC widget/module
+│   │   └── training.js             ← Training module (workout log: reads + session registration via Supabase)
 │   └── images/
 │       ├── movies/<year>/          ← Posters, with thumbs/<slug>.jpg subfolder
 │       ├── airlines/               ← Airline logo PNGs
 │       ├── moments/<year>/         ← Moments photos
 │       └── traviata.jpg            ← "Other" page image
 └── docs/
-    └── webapp-architecture.md      ← Proposal to move to a backend + DB + admin
+    ├── webapp-architecture.md      ← Proposal to move movies/flights to a backend + DB + admin (future)
+    └── workout-log-schema.md       ← Workout log relational schema (Training module, Supabase)
 ```
 
 ## How it works
-- `index.html` loads the router, flights module, and app script.
+- `index.html` loads the router, flights/training modules, and app script.
 - On load, the app fetches the JSON data files under `data/`.
-- The hash router (e.g. `#/movies/2025/anora`, `#/flights`) decides which view to render.
+- The hash router (e.g. `#/movies/2025/anora`, `#/flights`, `#/training/data`) decides which view to render.
 - Views render by injecting HTML into `#main` — no page reloads.
 - Navigation is generated dynamically from data (years auto-detected from `movies.json`).
+- Static content comes from JSON. The **Training** module is the exception: it reads from and writes workout sessions to a Supabase (PostgreSQL) backend via `@supabase/supabase-js`.
 
 ## Routes
 | Hash | View |
@@ -51,12 +54,19 @@ tipodan.github.io/
 | `#/flights/by-year` | Flights grouped by year (expandable) |
 | `#/flights/airlines` | Airlines distribution (top 3 + bar chart) |
 | `#/moments` | Moments photo gallery grouped by year |
+| `#/btc` | BTC widget |
+| `#/training/data` | Workout log table (sessions, filters, progress chart) |
+| `#/training/plan` | Workout templates (plan) grouped by workout |
+| `#/training/register` | Register a session (create new or auto-resume the open one) |
+| `#/training/:exercise` | Workout log filtered by exercise (progress chart) |
 | `#/other` | Miscellaneous page |
 
 ## Tech stack
 - HTML + CSS + vanilla JavaScript (no frameworks, no build step)
 - Hash-based SPA router
-- JSON data files as the single source of truth
+- JSON data files as the single source of truth for static content (movies, flights, moments, site config)
+- Supabase (PostgreSQL + PostgREST) as the backend for the Training module (reads and session writes)
+- Chart.js + `@supabase/supabase-js` loaded from CDN
 - AI-assisted content management (posters via TMDB)
 - Hosted on GitHub Pages
 
@@ -73,6 +83,14 @@ tipodan.github.io/
 - `flights.json` — array of flight objects (`route`, `from`, `fromCode`, `to`, `toCode`, `date`, `year`, `airline`).
 - `moments.json` — array of year groups, each with a `photos` array of `{ "src", "alt" }`.
 - `site.json` — navigation config plus `airlineLogos` and `airlineColors` maps.
+
+## Training module (Supabase-backed)
+- Not JSON-backed: `training.js` reads from and writes to a Supabase (PostgreSQL) database via `@supabase/supabase-js` + PostgREST, using the public anon key with Row Level Security.
+- Schema (exercises, workouts, workout_exercises, sessions, exercise_sets) is in `docs/workout-log-schema.md`.
+- Training is a single nav item with a submenu (like Flights) → three dedicated views: `#/training/data` (sessions table + filters + progress chart), `#/training/plan` (workout templates), `#/training/register` (register/resume a session). `#/training` → redirects to `#/training/data`; old `#/plan` → `#/training/plan`.
+- Register view (`#/training/register`): pick workout + date → INSERT `sessions` → fill a 3-set grid per exercise → "Guardar sesión" upserts `exercise_sets` (merge on `UNIQUE(session_id, exercise_id, set_number)`) → "Cerrar sesión" does a final save, stamps `sessions.finished_at` (TIMESTAMPTZ, NULL = open), and returns to Data.
+- Auto-resume: opening `#/training/register` checks for a session with `finished_at IS NULL` and resumes the most recent one (exercises + saved sets prefilled); otherwise it starts a new session.
+- RLS opened for the anon role: SELECT (read tables), INSERT (`sessions`, `exercise_sets`), UPDATE (`exercise_sets` and `sessions`). Anon writes are public by design — move behind Supabase Auth if the data must be protected.
 
 ## Related steering files
 - `tmdb-movies.md` — full workflow for adding movies (TMDB search, poster download, thumbnail, `movies.json`).

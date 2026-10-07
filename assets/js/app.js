@@ -135,15 +135,31 @@ const App = (() => {
     const isIdeasActive = activeRoute === '/ideas';
     ideasLi.innerHTML = `<a href="#/ideas" class="${isIdeasActive ? 'on' : ''}">Ideas</a>`;
 
-    // Training
+    // Training (with submenu: Data / Plan / Register)
     const trainingLi = document.createElement('li');
-    const isTrainingActive = activeRoute === '/training';
-    trainingLi.innerHTML = `<a href="#/training" class="${isTrainingActive ? 'on' : ''}">Training</a>`;
-
-    // Plan
-    const planLi = document.createElement('li');
-    const isPlanActive = activeRoute === '/plan';
-    planLi.innerHTML = `<a href="#/plan" class="${isPlanActive ? 'on' : ''}">Plan</a>`;
+    const isTrainingSection = activeRoute.startsWith('/training') || activeRoute === '/plan';
+    trainingLi.innerHTML = `<a href="#" class="nav-toggle ${isTrainingSection ? 'open' : ''}">Training</a>`;
+    const trainingSub = document.createElement('ul');
+    trainingSub.classList.add('nav-submenu');
+    if (isTrainingSection) trainingSub.classList.add('nav-submenu--open');
+    const trainingRoutes = [
+      { label: 'Data', route: '#/training/data' },
+      { label: 'Plan', route: '#/training/plan' },
+      { label: 'Register', route: '#/training/register' }
+    ];
+    for (const tr of trainingRoutes) {
+      const li = document.createElement('li');
+      const isActive = `#${activeRoute}` === tr.route;
+      li.innerHTML = `<a href="${tr.route}" class="${isActive ? 'on' : ''}">${tr.label}</a>`;
+      trainingSub.appendChild(li);
+    }
+    const trainingSubLi = makeSubLi(trainingSub);
+    if (isTrainingSection) trainingSubLi.classList.add('nav-submenu-row--open');
+    trainingLi.querySelector('.nav-toggle').addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleSubmenu(trainingSubLi, trainingSub, trainingLi.querySelector('.nav-toggle'));
+    });
+    submenus.push({ subLi: trainingSubLi, submenuUl: trainingSub, toggle: trainingLi.querySelector('.nav-toggle') });
 
     // Other (always last)
     const otherLi = document.createElement('li');
@@ -158,8 +174,8 @@ const App = (() => {
     ul.appendChild(momentsLi);
     ul.appendChild(moviesLi);
     ul.appendChild(moviesSubLi);    // submenu row, hidden until open
-    ul.appendChild(planLi);
     ul.appendChild(trainingLi);
+    ul.appendChild(trainingSubLi);  // submenu row, hidden until open
     ul.appendChild(otherLi);
 
     const nav = $nav();
@@ -326,23 +342,47 @@ const App = (() => {
     document.title = `Ideas | ${siteData.title}`;
   }
 
-  // --- Training view ---
+  // --- Training: Data view (sessions table + filters + progress chart) ---
   function renderTraining(initialExercise) {
-    renderNav('/training');
+    renderNav('/training/data');
     $main().innerHTML = `
       <div id="contact" class="section training-view">
-        <h1 class="page-title">Training</h1>
+        <h1 class="page-title">Training — Data</h1>
         <div id="trainingContent"></div>
       </div>`;
     document.title = `Training | ${siteData.title}`;
     Training.init(document.getElementById('trainingContent'), initialExercise);
   }
 
+  // --- Training: Register session view (dedicated route) ---
+  function renderRegisterSession() {
+    renderNav('/training/register');
+    $main().innerHTML = `
+      <div id="contact" class="section training-view">
+        <h1 class="page-title">Training — Register</h1>
+        <div id="trainingRegister"></div>
+      </div>`;
+    document.title = `Training | ${siteData.title}`;
+
+    const registerEl = document.getElementById('trainingRegister');
+
+    // When a session is closed/cancelled, go to the Data view.
+    const onClose = () => Router.navigate('/training/data');
+
+    // If an open session exists, resume it; otherwise start a new one.
+    Training.fetchOpenSession()
+      .then(openSession => Training.initRegister(registerEl, onClose, openSession))
+      .catch(err => {
+        console.error('[Training] open-session check failed:', err);
+        Training.initRegister(registerEl, onClose, null);
+      });
+  }
+
   function renderPlan() {
-    renderNav('/plan');
+    renderNav('/training/plan');
     $main().innerHTML = `
       <div id="contact" class="section plan-view">
-        <h1 class="page-title">Plan</h1>
+        <h1 class="page-title">Training — Plan</h1>
         <div id="planContent"></div>
       </div>`;
     document.title = `Plan | ${siteData.title}`;
@@ -544,9 +584,13 @@ const App = (() => {
     Router.add('/other', () => renderOther());
     Router.add('/moments', () => renderMoments());
     Router.add('/ideas', () => renderIdeas());
-    Router.add('/training', () => renderTraining());
+    Router.add('/training', () => Router.navigate('/training/data'));
+    Router.add('/training/data', () => renderTraining());
+    Router.add('/training/plan', () => renderPlan());
+    Router.add('/training/register', () => renderRegisterSession());
     Router.add('/training/:exercise', ({ exercise }) => renderTraining(exercise));
-    Router.add('/plan', () => renderPlan());
+    // Back-compat: old #/plan route redirects to the new location.
+    Router.add('/plan', () => Router.navigate('/training/plan'));
     Router.notFound(() => renderHome());
 
     Router.start();

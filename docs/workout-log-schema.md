@@ -54,6 +54,7 @@ CREATE TABLE sessions (
   workout_id    INTEGER NOT NULL REFERENCES workouts(id),
   date          DATE NOT NULL,
   notes         TEXT,
+  finished_at   TIMESTAMPTZ,                 -- cuándo se cerró la sesión; NULL = abierta
   created_at    TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -74,6 +75,8 @@ CREATE INDEX idx_exercise_sets_session     ON exercise_sets(session_id);
 ```
 
 ## Inserción de datos
+
+> **Nota:** además de los INSERT por SQL que se describen abajo (útiles para la carga inicial del catálogo y las plantillas), las **sesiones** y sus **series** se registran también desde la interfaz web, en la vista dedicada `#/training/register` (submenú Training → Register). La UI inserta en `sessions` y hace *upsert* en `exercise_sets` vía la API PostgREST de Supabase con la anon key. Al "Cerrar sesión" se marca `sessions.finished_at` con el instante de cierre (NULL = sesión abierta). Para ello las políticas RLS del rol `anon` permiten SELECT en todas las tablas de lectura, INSERT en `sessions` y `exercise_sets`, y UPDATE en `exercise_sets` y `sessions`. Ver [README → Training](../README.md#️-training--workout-log).
 
 El orden de inserción es obligatorio por las claves foráneas:
 `exercises` → `workouts` → `workout_exercises` → `sessions` → `exercise_sets`.

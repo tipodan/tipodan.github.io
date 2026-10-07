@@ -451,6 +451,95 @@ strong {
 .training-empty { color: #ccc; }
 .training-error { color: #b00; }
 
+/* --- Session registration panel --- */
+.register-btn {
+  font-family: Montserrat, sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid #333;
+  background: #333;
+  color: #fff;
+  padding: 6px 14px;
+}
+.register-btn:hover { background: #555; border-color: #555; }
+.register-btn:disabled { opacity: 0.5; cursor: default; }
+.register-btn-secondary {
+  background: #fff;
+  color: #333;
+}
+.register-btn-secondary:hover { background: #f2f2f2; color: #333; }
+.register-panel {
+  border: 1px solid #ddd;
+  padding: 16px;
+  margin-bottom: 20px;
+  background: #fafafa;
+}
+.register-resume {
+  font-family: Montserrat, sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ddd;
+}
+.register-setup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+.register-field {
+  display: flex;
+  flex-direction: column;
+  font-family: Montserrat, sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #333;
+  gap: 4px;
+}
+.register-field select,
+.register-field input {
+  font-family: inherit;
+  font-size: 13px;
+  text-transform: none;
+  font-weight: 400;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+}
+.register-sets-scroll { overflow-x: auto; }
+.register-table { margin-top: 8px; }
+.register-table th.register-exercise-head { text-align: left; }
+.register-table td.register-exercise {
+  font-weight: bold;
+  white-space: nowrap;
+  text-align: left;
+}
+.register-table input {
+  width: 48px;
+  font-size: 12px;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+.register-actions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.register-status {
+  font-family: Montserrat, sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #333;
+}
+
 /* Year table specifics */
 .year-table td:nth-child(2), .year-table td:nth-child(3),
 .year-table th:nth-child(2), .year-table th:nth-child(3) { text-align: right; }

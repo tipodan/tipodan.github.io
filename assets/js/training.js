@@ -395,5 +395,327 @@ const Training = (() => {
     }
   }
 
-  return { init, initPlan };
+  // ===========================================================================
+  //  Session registration (write path)
+  //  Flow: pick workout + date → create session (INSERT) → fill a 6-set grid
+  //  per exercise → "Guardar sesión" upserts the filled sets → "Cerrar sesión"
+  //  upserts and closes the panel. Requires anon INSERT/UPDATE policies on
+  //  `sessions` and `exercise_sets`.
+  // ===========================================================================
+
+  const SETS_PER_EXERCISE = 3;
+
+  // Fetch the workout templates (id + name) for the workout selector.
+  async function fetchWorkouts() {
+    const sb = getClient();
+    const { data, error } = await sb
+      .from('workouts')
+      .select('id, name')
+      .order('id', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }
+
+  // Fetch the exercises that make up a given workout, ordered by position.
+  async function fetchWorkoutExercises(workoutId) {
+    const sb = getClient();
+    const { data, error } = await sb
+      .from('workout_exercises')
+      .select(`
+        position,
+        exercises ( id, name, muscle_group )
+      `)
+      .eq('workout_id', workoutId)
+      .order('position', { ascending: true });
+    if (error) throw error;
+    return (data || []).map(row => ({
+      id: row.exercises ? row.exercises.id : null,
+      name: row.exercises ? row.exercises.name : '(desconocido)',
+      muscle: row.exercises ? row.exercises.muscle_group : '',
+    }));
+  }
+
+  // Insert a new session and return the created row (needs its id for sets).
+  async function createSession(workoutId, date) {
+    const sb = getClient();
+    const { data, error } = await sb
+      .from('sessions')
+      .insert({ workout_id: workoutId, date })
+      .select('id, date')
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  // Upsert the filled sets for a session. Only sets with a reps value are
+  // persisted; empty weight means bodyweight (NULL). Relies on the
+  // UNIQUE(session_id, exercise_id, set_number) constraint for merge.
+  async function saveSets(sessionId, rows) {
+    const payload = [];
+    for (const row of rows) {
+      for (let n = 1; n <= SETS_PER_EXERCISE; n++) {
+        const cell = row.sets[n];
+        if (!cell || cell.reps === '' || cell.reps === null || cell.reps === undefined) {
+          continue; // skip sets without reps
+        }
+        payload.push({
+          session_id: sessionId,
+          exercise_id: row.exerciseId,
+          set_number: n,
+          reps: Number(cell.reps),
+          weight: cell.weight === '' || cell.weight === null || cell.weight === undefined
+            ? null
+            : Number(cell.weight),
+        });
+      }
+    }
+    if (!payload.length) return 0;
+
+    const sb = getClient();
+    const { error } = await sb
+      .from('exercise_sets')
+      .upsert(payload, { onConflict: 'session_id,exercise_id,set_number' });
+    if (error) throw error;
+    return payload.length;
+  }
+
+  // Mark a session as closed by stamping finished_at. Requires anon UPDATE on
+  // `sessions` and the finished_at TIMESTAMPTZ column.
+  async function finishSession(sessionId) {
+    const sb = getClient();
+    const { error } = await sb
+      .from('sessions')
+      .update({ finished_at: new Date().toISOString() })
+      .eq('id', sessionId);
+    if (error) throw error;
+  }
+
+  // Find the most recent not-yet-closed session (finished_at IS NULL), if any,
+  // together with its already-saved sets. Returns null when none is open.
+  async function fetchOpenSession() {
+    const sb = getClient();
+    const { data, error } = await sb
+      .from('sessions')
+      .select(`
+        id,
+        date,
+        workout_id,
+        workouts ( name ),
+        exercise_sets ( exercise_id, set_number, reps, weight )
+      `)
+      .is('finished_at', null)
+      .order('date', { ascending: false })
+      .order('id', { ascending: false })
+      .limit(1);
+    if (error) throw error;
+    return (data && data.length) ? data[0] : null;
+  }
+
+  // --- Register panel rendering ---
+  // When `openSession` is provided, the panel resumes that session: it skips
+  // the workout/date setup and preloads the exercises + already-saved sets.
+  function renderRegister(container, workouts, onClose, openSession) {
+    let sessionId = null;      // set once the session is created / resumed
+    let exercises = [];        // [{ id, name, muscle }]
+    // Preloaded sets for a resumed session: Map<exerciseId, Map<setNumber,{reps,weight}>>
+    let prefillSets = new Map();
+
+    const workoutOptions = workouts
+      .map(w => `<option value="${w.id}">${w.name}</option>`)
+      .join('');
+    const today = new Date().toISOString().slice(0, 10);
+
+    const resumeInfo = openSession
+      ? `<div class="register-resume">Reanudando sesión del
+           <strong>${openSession.date}</strong>
+           ${openSession.workouts && openSession.workouts.name ? `— ${openSession.workouts.name}` : ''}</div>`
+      : '';
+
+    container.innerHTML = `
+      <div class="register-panel">
+        ${resumeInfo}
+        <div class="register-setup" id="registerSetup"${openSession ? ' style="display:none"' : ''}>
+          <label class="register-field">
+            Entreno
+            <select id="registerWorkout">${workoutOptions}</select>
+          </label>
+          <label class="register-field">
+            Fecha
+            <input type="date" id="registerDate" value="${today}">
+          </label>
+          <button type="button" id="registerCreate" class="register-btn">Guardar</button>
+          <button type="button" id="registerCancel" class="register-btn register-btn-secondary">Cancelar</button>
+          <span class="training-error" id="registerSetupError"></span>
+        </div>
+        <div class="register-sets" id="registerSets" style="display:none"></div>
+      </div>`;
+
+    const setupEl = container.querySelector('#registerSetup');
+    const setsEl = container.querySelector('#registerSets');
+    const setupError = container.querySelector('#registerSetupError');
+
+    container.querySelector('#registerCancel')
+      .addEventListener('click', () => onClose());
+
+    container.querySelector('#registerCreate').addEventListener('click', async () => {
+      setupError.textContent = '';
+      const workoutId = Number(container.querySelector('#registerWorkout').value);
+      const date = container.querySelector('#registerDate').value;
+      if (!workoutId || !date) {
+        setupError.textContent = 'Elige entreno y fecha.';
+        return;
+      }
+      const createBtn = container.querySelector('#registerCreate');
+      createBtn.disabled = true;
+      try {
+        const [session, exs] = await Promise.all([
+          createSession(workoutId, date),
+          fetchWorkoutExercises(workoutId),
+        ]);
+        sessionId = session.id;
+        exercises = exs;
+        setupEl.style.display = 'none';
+        renderSetsGrid();
+      } catch (err) {
+        console.error('[Training] create session failed:', err);
+        setupError.textContent = `No se pudo crear la sesión: ${err.message}`;
+        createBtn.disabled = false;
+      }
+    });
+
+    // Resume an open session: load its exercises and preload saved sets.
+    async function resume(session) {
+      sessionId = session.id;
+      prefillSets = new Map();
+      for (const s of session.exercise_sets || []) {
+        if (!prefillSets.has(s.exercise_id)) prefillSets.set(s.exercise_id, new Map());
+        prefillSets.get(s.exercise_id).set(s.set_number, { reps: s.reps, weight: s.weight });
+      }
+      setsEl.innerHTML = '<p>Cargando sesión…</p>';
+      setsEl.style.display = 'block';
+      try {
+        exercises = await fetchWorkoutExercises(session.workout_id);
+        renderSetsGrid();
+      } catch (err) {
+        console.error('[Training] resume session failed:', err);
+        setsEl.innerHTML = `<p class="training-error">No se pudo reanudar la sesión: ${err.message}</p>`;
+      }
+    }
+
+    // Build the per-exercise grid of 6 (reps, weight) inputs.
+    function renderSetsGrid() {
+      const headerCols = [];
+      for (let n = 1; n <= SETS_PER_EXERCISE; n++) {
+        headerCols.push(`<th colspan="2">Serie ${n}</th>`);
+      }
+      const subCols = [];
+      for (let n = 1; n <= SETS_PER_EXERCISE; n++) {
+        subCols.push('<th>reps</th><th>kg</th>');
+      }
+
+      const bodyRows = exercises.map(ex => {
+        const saved = prefillSets.get(ex.id);
+        const cells = [];
+        for (let n = 1; n <= SETS_PER_EXERCISE; n++) {
+          const cell = saved ? saved.get(n) : null;
+          const repsVal = cell && cell.reps != null ? cell.reps : '';
+          const weightVal = cell && cell.weight != null ? cell.weight : '';
+          cells.push(`
+            <td><input type="number" min="0" step="1" class="register-reps"
+                       data-exercise="${ex.id}" data-set="${n}" value="${repsVal}"></td>
+            <td><input type="number" min="0" step="0.25" class="register-weight"
+                       data-exercise="${ex.id}" data-set="${n}" value="${weightVal}"></td>`);
+        }
+        return `
+          <tr>
+            <td class="register-exercise">${ex.name}${ex.muscle ? `<span class="plan-muscle">${ex.muscle}</span>` : ''}</td>
+            ${cells.join('')}
+          </tr>`;
+      }).join('');
+
+      setsEl.style.display = 'block';
+      setsEl.innerHTML = `
+        <div class="register-sets-scroll">
+          <table class="flights-table register-table">
+            <thead>
+              <tr><th rowspan="2" class="register-exercise-head">Ejercicio</th>${headerCols.join('')}</tr>
+              <tr>${subCols.join('')}</tr>
+            </thead>
+            <tbody>${bodyRows}</tbody>
+          </table>
+        </div>
+        <div class="register-actions">
+          <button type="button" id="registerSave" class="register-btn">Guardar sesión</button>
+          <button type="button" id="registerFinish" class="register-btn register-btn-secondary">Cerrar sesión</button>
+          <span class="register-status" id="registerStatus"></span>
+        </div>`;
+
+      setsEl.querySelector('#registerSave')
+        .addEventListener('click', () => persist(false));
+      setsEl.querySelector('#registerFinish')
+        .addEventListener('click', () => persist(true));
+    }
+
+    // Collect the grid values into rows and upsert them.
+    async function persist(close) {
+      const statusEl = setsEl.querySelector('#registerStatus');
+      statusEl.className = 'register-status';
+      statusEl.textContent = 'Guardando…';
+
+      const byExercise = new Map();
+      for (const ex of exercises) {
+        byExercise.set(ex.id, { exerciseId: ex.id, sets: {} });
+      }
+      setsEl.querySelectorAll('.register-reps').forEach(input => {
+        const exId = Number(input.dataset.exercise);
+        const n = Number(input.dataset.set);
+        if (!byExercise.has(exId)) return;
+        byExercise.get(exId).sets[n] = byExercise.get(exId).sets[n] || {};
+        byExercise.get(exId).sets[n].reps = input.value.trim();
+      });
+      setsEl.querySelectorAll('.register-weight').forEach(input => {
+        const exId = Number(input.dataset.exercise);
+        const n = Number(input.dataset.set);
+        if (!byExercise.has(exId)) return;
+        byExercise.get(exId).sets[n] = byExercise.get(exId).sets[n] || {};
+        byExercise.get(exId).sets[n].weight = input.value.trim();
+      });
+
+      try {
+        const saved = await saveSets(sessionId, [...byExercise.values()]);
+        if (close) {
+          await finishSession(sessionId);
+          onClose();
+          return;
+        }
+        statusEl.textContent = `Guardado (${saved} series).`;
+      } catch (err) {
+        console.error('[Training] save sets failed:', err);
+        statusEl.className = 'register-status training-error';
+        statusEl.textContent = `No se pudo guardar: ${err.message}`;
+      }
+    }
+
+    // If resuming an open session, skip setup and load it immediately.
+    if (openSession) {
+      resume(openSession);
+    }
+  }
+
+  async function initRegister(container, onClose, openSession) {
+    container.innerHTML = '<p>Cargando entrenos…</p>';
+    try {
+      const workouts = await fetchWorkouts();
+      if (!workouts.length) {
+        container.innerHTML = '<p>No hay entrenos disponibles.</p>';
+        return;
+      }
+      renderRegister(container, workouts, onClose, openSession);
+    } catch (err) {
+      console.error('[Training] register init failed:', err);
+      container.innerHTML = `<p class="training-error">No se pudo abrir el registro: ${err.message}</p>`;
+    }
+  }
+
+  return { init, initPlan, initRegister, fetchOpenSession };
 })();
