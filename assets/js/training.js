@@ -127,16 +127,21 @@ const Training = (() => {
         .slice()
         .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
 
-      // Compute mean weight per session (ignore BW sets where weight is null).
+      // Compute two metrics per session (ignoring BW sets where weight is null):
+      //  - Volumen total movido = Σ (reps × peso)
+      //  - Peso medio por repetición = volumen total / Σ reps
       const points = exerciseRows.map(r => {
-        const weights = [...r.sets.values()]
-          .map(s => s.weight)
-          .filter(w => w !== null && w !== undefined);
-        const avg = weights.length
-          ? weights.reduce((sum, w) => sum + Number(w), 0) / weights.length
-          : null;
-        return { date: r.date, avg };
-      }).filter(p => p.avg !== null);
+        let volume = 0;      // Σ reps × peso
+        let totalReps = 0;   // Σ reps (solo series con peso)
+        for (const s of r.sets.values()) {
+          if (s.weight === null || s.weight === undefined) continue; // ignora BW
+          const reps = Number(s.reps) || 0;
+          volume += reps * Number(s.weight);
+          totalReps += reps;
+        }
+        const avgPerRep = totalReps > 0 ? volume / totalReps : null;
+        return { date: r.date, volume, avgPerRep };
+      }).filter(p => p.avgPerRep !== null);
 
       if (points.length < 2) {
         progressEl.style.display = 'none';
@@ -151,31 +156,56 @@ const Training = (() => {
         type: 'line',
         data: {
           labels: points.map(p => p.date),
-          datasets: [{
-            data: points.map(p => p.avg),
-            borderColor: '#333',
-            backgroundColor: 'rgba(51,51,51,0.08)',
-            borderWidth: 1.5,
-            pointRadius: 3,
-            pointBackgroundColor: '#333',
-            tension: 0.3,
-            fill: true,
-          }]
+          datasets: [
+            {
+              label: 'Total volume (kg)',
+              data: points.map(p => p.volume),
+              yAxisID: 'yVolume',
+              borderColor: '#2980b9',
+              backgroundColor: 'rgba(41,128,185,0.08)',
+              borderWidth: 1.5,
+              pointRadius: 3,
+              pointBackgroundColor: '#2980b9',
+              tension: 0.3,
+              fill: true,
+            },
+            {
+              label: 'Avg weight/rep (kg)',
+              data: points.map(p => p.avgPerRep),
+              yAxisID: 'yAvg',
+              borderColor: '#e67e22',
+              backgroundColor: 'rgba(230,126,34,0.08)',
+              borderWidth: 1.5,
+              pointRadius: 3,
+              pointBackgroundColor: '#e67e22',
+              tension: 0.3,
+              fill: false,
+            }
+          ]
         },
         options: {
           responsive: true,
+          interaction: { mode: 'index', intersect: false },
           plugins: {
-            legend: { display: false },
+            legend: {
+              display: true,
+              labels: { font: { family: 'Montserrat, sans-serif', size: 10 }, color: '#333' }
+            },
             title: {
               display: true,
-              text: `${exerciseName} — avg weight per session (kg)`,
+              text: `${exerciseName} — total volume and avg weight/rep`,
               font: { family: 'Montserrat, sans-serif', size: 11, weight: '700' },
               color: '#333',
               padding: { bottom: 10 }
             },
             tooltip: {
               callbacks: {
-                label: ctx => `${ctx.parsed.y.toFixed(1)} kg`
+                label: ctx => {
+                  const v = ctx.parsed.y;
+                  return ctx.dataset.yAxisID === 'yVolume'
+                    ? `Total volume: ${v.toLocaleString('en-US', { maximumFractionDigits: 0 })} kg`
+                    : `Avg weight/rep: ${v.toFixed(1)} kg`;
+                }
               }
             }
           },
@@ -184,9 +214,19 @@ const Training = (() => {
               ticks: { font: { size: 10 }, maxRotation: 45 },
               grid: { display: false }
             },
-            y: {
+            yVolume: {
+              type: 'linear',
+              position: 'left',
+              title: { display: true, text: 'Volume (kg)', font: { size: 10 }, color: '#2980b9' },
               ticks: { font: { size: 10 } },
               grid: { color: '#eee' }
+            },
+            yAvg: {
+              type: 'linear',
+              position: 'right',
+              title: { display: true, text: 'Avg weight/rep (kg)', font: { size: 10 }, color: '#e67e22' },
+              ticks: { font: { size: 10 } },
+              grid: { drawOnChartArea: false }
             }
           }
         }
