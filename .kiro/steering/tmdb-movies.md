@@ -57,3 +57,18 @@ Every poster MUST have a corresponding thumbnail for the "All movies" grid view.
 - The SPA auto-detects new years from movies.json — no other code changes needed
 - Update README.md tree if a new year folder is created
 - When editing `README.md`, do NOT hard-wrap lines: keep each paragraph, list item, or table row on a single line (no manual mid-sentence line breaks). See `project-docs.md` for the full documentation writing style.
+
+## Learned poster preferences
+
+Goal: make poster recommendations more precise over time from the user's actual choices. The user ALWAYS confirms the final pick — this section only sharpens which option is recommended, it does NOT enable automatic selection.
+
+### Workflow addition
+- Before presenting poster options (step 7), read `docs/poster-decisions.md` and the preferences below, then mark one option as **Recommended** and briefly explain why it fits the user's history.
+- After the user confirms a choice, APPEND a structured entry to `docs/poster-decisions.md` (newest at the bottom) using the attributes listed there.
+- If a new pattern emerges or the trend shifts, update the "Distilled preferences" list below so recommendations stay accurate.
+
+### Distilled preferences (preliminary — low confidence, 1 data point)
+- Prefers the full official theatrical poster: top-billed cast names, full billing block / technical credits, festival laurels, and press quotes present.
+- Prefers real character photography over artistic collage, minimalist, or teaser art.
+- For Spanish-language/European films, prefers the Spanish-language poster.
+- Confidence will increase as more entries accumulate in `docs/poster-decisions.md`; treat these as tentative until the log shows a consistent pattern across several films.

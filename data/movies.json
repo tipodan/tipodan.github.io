@@ -89,5 +89,6 @@
   { "year": 2026, "name": "The Odyssey", "slug": "the-odyssey" },
   { "year": 2026, "name": "El ser querido", "slug": "el-ser-querido" },
   { "year": 2026, "name": "Bullet Train", "slug": "bullet-train" },
-  { "year": 2026, "name": "La bola negra", "slug": "la-bola-negra" }
+  { "year": 2026, "name": "La bola negra", "slug": "la-bola-negra" },
+  { "year": 2026, "name": "Valor sentimental", "slug": "valor-sentimental" }
 ]
