@@ -463,6 +463,7 @@ const Training = (() => {
       .from('workout_exercises')
       .select(`
         position,
+        sets_plan,
         exercises ( id, name, muscle_group )
       `)
       .eq('workout_id', workoutId)
@@ -472,7 +473,51 @@ const Training = (() => {
       id: row.exercises ? row.exercises.id : null,
       name: row.exercises ? row.exercises.name : '(desconocido)',
       muscle: row.exercises ? row.exercises.muscle_group : '',
+      setsPlan: row.sets_plan || '',
     }));
+  }
+
+  // For a set of exercises, fetch the sets (reps/weight by set_number) from the
+  // most recent prior session where each exercise was logged. Used to prefill
+  // an empty session's grid. Excludes the current session. Returns
+  // Map<exerciseId, Map<setNumber, { reps, weight }>>.
+  async function fetchLastSetsByExercise(exerciseIds, excludeSessionId) {
+    const result = new Map();
+    if (!exerciseIds.length) return result;
+
+    const sb = getClient();
+    let query = sb
+      .from('exercise_sets')
+      .select(`
+        exercise_id,
+        set_number,
+        reps,
+        weight,
+        session_id,
+        sessions ( id, date )
+      `)
+      .in('exercise_id', exerciseIds)
+      .order('date', { ascending: false, foreignTable: 'sessions' })
+      .order('session_id', { ascending: false })
+      .order('set_number', { ascending: true });
+    if (excludeSessionId != null) {
+      query = query.neq('session_id', excludeSessionId);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    // Rows arrive newest-session-first; keep only the first session seen per
+    // exercise (its most recent prior session).
+    const chosenSession = new Map(); // exerciseId -> session_id kept
+    for (const row of data || []) {
+      const exId = row.exercise_id;
+      if (!chosenSession.has(exId)) chosenSession.set(exId, row.session_id);
+      if (chosenSession.get(exId) !== row.session_id) continue;
+      if (!result.has(exId)) result.set(exId, new Map());
+      result.get(exId).set(row.set_number, { reps: row.reps, weight: row.weight });
+    }
+    return result;
   }
 
   // Insert a new session and return the created row (needs its id for sets).
@@ -497,6 +542,9 @@ const Training = (() => {
         const cell = row.sets[n];
         if (!cell || cell.reps === '' || cell.reps === null || cell.reps === undefined) {
           continue; // skip sets without reps
+        }
+        if (Number(cell.reps) < 1) {
+          continue; // skip sets with 0 (or fewer) reps
         }
         payload.push({
           session_id: sessionId,
@@ -559,6 +607,10 @@ const Training = (() => {
     let exercises = [];        // [{ id, name, muscle }]
     // Preloaded sets for a resumed session: Map<exerciseId, Map<setNumber,{reps,weight}>>
     let prefillSets = new Map();
+    // Reference values from each exercise's last logged session (not persisted):
+    // Map<exerciseId, Map<setNumber,{reps,weight}>>. Used to prefill weights,
+    // zero out reps, and show the last reps in parentheses next to each set.
+    let lastSets = new Map();
 
     const workoutOptions = workouts
       .map(w => `<option value="${w.id}">${w.name}</option>`)
@@ -614,6 +666,13 @@ const Training = (() => {
         ]);
         sessionId = session.id;
         exercises = exs;
+        // New session has no saved sets. Load each exercise's last logged
+        // session as reference: prefill weights, zero reps, show last reps in
+        // parentheses. Values are not persisted until the user saves.
+        lastSets = await fetchLastSetsByExercise(
+          exercises.map(ex => ex.id).filter(id => id != null),
+          sessionId,
+        );
         setupEl.style.display = 'none';
         renderSetsGrid();
       } catch (err) {
@@ -635,6 +694,13 @@ const Training = (() => {
       setsEl.style.display = 'block';
       try {
         exercises = await fetchWorkoutExercises(session.workout_id);
+        // Always load reference values from each exercise's last prior session
+        // (for the parenthesised last-reps hint and, when this session has no
+        // saved sets, to prefill weights and zero the reps).
+        lastSets = await fetchLastSetsByExercise(
+          exercises.map(ex => ex.id).filter(id => id != null),
+          sessionId,
+        );
         renderSetsGrid();
       } catch (err) {
         console.error('[Training] resume session failed:', err);
@@ -655,20 +721,48 @@ const Training = (() => {
 
       const bodyRows = exercises.map(ex => {
         const saved = prefillSets.get(ex.id);
+        const last = lastSets.get(ex.id);
         const cells = [];
         for (let n = 1; n <= SETS_PER_EXERCISE; n++) {
           const cell = saved ? saved.get(n) : null;
-          const repsVal = cell && cell.reps != null ? cell.reps : '';
-          const weightVal = cell && cell.weight != null ? cell.weight : '';
+          const lastCell = last ? last.get(n) : null;
+          const hasSaved = cell && cell.reps != null;
+          // reps: saved value if present; else 0 when there's history; else empty
+          const repsVal = hasSaved ? cell.reps : (lastCell ? 0 : '');
+          // weight: saved value if present; else last logged weight; else empty
+          let weightVal = '';
+          if (cell && cell.weight != null) weightVal = cell.weight;
+          else if (lastCell && lastCell.weight != null) weightVal = lastCell.weight;
+          // parenthesised hint: last session's reps (and weight) for this set,
+          // always shown. Format: (repsxkg), or (reps) when there was no weight.
+          let lastRepsHint = '';
+          if (lastCell && lastCell.reps != null) {
+            const hintText = lastCell.weight != null
+              ? `${lastCell.reps}x${lastCell.weight}`
+              : `${lastCell.reps}`;
+            lastRepsHint = `<span class="register-last-reps">(${hintText})</span>`;
+          }
           cells.push(`
             <td class="register-cell-reps"><input type="number" min="0" step="1" class="register-reps"
                        data-exercise="${ex.id}" data-set="${n}" value="${repsVal}" placeholder="reps"></td>
             <td class="register-cell-weight"><input type="number" min="0" step="0.25" class="register-weight"
-                       data-exercise="${ex.id}" data-set="${n}" value="${weightVal}" placeholder="kg"></td>`);
+                       data-exercise="${ex.id}" data-set="${n}" value="${weightVal}" placeholder="kg">${lastRepsHint}</td>`);
         }
+        // Collapse state (mobile only): start collapsed when the number of
+        // already-saved sets with reps >= 1 matches the series count from the
+        // plan (e.g. "3x12" -> 3). The arrow is always shown.
+        const planSeries = parseInt((ex.setsPlan || '').match(/\d+/)?.[0] ?? '', 10);
+        let filledCount = 0;
+        if (saved) {
+          for (const [, c] of saved) {
+            if (c && c.reps != null && Number(c.reps) >= 1) filledCount++;
+          }
+        }
+        const startCollapsed = Number.isFinite(planSeries) && planSeries > 0
+          && filledCount === planSeries;
         return `
-          <tr>
-            <td class="register-exercise">${ex.name}${ex.muscle ? `<span class="plan-muscle">${ex.muscle}</span>` : ''}</td>
+          <tr class="register-row${startCollapsed ? ' register-row--collapsed' : ''}">
+            <td class="register-exercise">${ex.name}${(ex.muscle || ex.setsPlan) ? `<span class="register-meta">${ex.muscle ? `<span class="plan-muscle">${ex.muscle}</span>` : ''}${ex.setsPlan ? `<span class="register-plan">${ex.setsPlan}</span>` : ''}</span>` : ''}<button type="button" class="register-collapse${startCollapsed ? '' : ' open'}" aria-label="Colapsar ejercicio"></button></td>
             ${cells.join('')}
           </tr>`;
       }).join('');
@@ -694,6 +788,16 @@ const Training = (() => {
         .addEventListener('click', () => persist(false));
       setsEl.querySelector('#registerFinish')
         .addEventListener('click', () => persist(true));
+
+      // Collapse/expand an exercise's sets (mobile) via the arrow toggle.
+      setsEl.querySelectorAll('.register-collapse').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const row = btn.closest('.register-row');
+          if (!row) return;
+          const collapsed = row.classList.toggle('register-row--collapsed');
+          btn.classList.toggle('open', !collapsed);
+        });
+      });
     }
 
     // Collect the grid values into rows and upsert them.

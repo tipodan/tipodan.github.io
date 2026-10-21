@@ -384,6 +384,7 @@ strong {
   .plan-table { font-size: 12px; }
   .plan-table th, .plan-table td { padding: 4px 6px; }
   .plan-table td.plan-sets { width: 72px; }
+  .plan-table .plan-muscle { display: none; }
 }
 .training-progress {
   width: 100%;
@@ -511,20 +512,73 @@ strong {
   padding: 4px 6px;
   border: 1px solid #ccc;
 }
-.register-sets-scroll { overflow-x: auto; }
-.register-table { margin-top: 8px; }
+.register-sets-scroll { overflow-x: visible; }
+.register-table { margin-top: 8px; width: 100%; table-layout: fixed; }
 .register-table th.register-exercise-head { text-align: left; }
 .register-table td.register-exercise {
   font-weight: bold;
   white-space: nowrap;
   text-align: left;
 }
+.register-plan {
+  font-weight: 400;
+  color: #999;
+  margin-left: 6px;
+}
+/* Second line under the exercise name: muscle group + plan, inline together. */
+.register-meta {
+  display: block;
+  margin-top: 1px;
+}
+.register-meta .plan-muscle {
+  display: inline;
+  margin-top: 0;
+}
+.register-meta .register-plan {
+  margin-left: 6px;
+}
+/* Collapse toggle (mobile only): hidden on desktop. */
+.register-collapse { display: none; }
+/* Column widths (table-layout: fixed): exercise wide, reps narrow, weight
+   wide enough to hold its input plus the last-session hint. Desktop only. */
+@media (min-width: 601px) {
+  .register-table th.register-exercise-head,
+  .register-table td.register-exercise { width: 30%; }
+  .register-table td.register-cell-reps  { width: 7%; }
+  .register-table td.register-cell-weight { width: 16.3%; }
+  /* Input + hint on one line, vertically centered, with a tight gap. */
+  .register-table td.register-cell-reps,
+  .register-table td.register-cell-weight {
+    padding: 6px 3px;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .register-table input { width: 46px; }
+}
+.register-last-reps {
+  font-size: 10px;
+  color: #999;
+  margin-left: 4px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
 .register-table input {
-  width: 48px;
+  box-sizing: border-box;
   font-size: 12px;
   padding: 2px 4px;
   border: 1px solid #ccc;
   text-align: center;
+  vertical-align: middle;
+}
+/* Remove the number spinner (up/down arrows) on reps/kg inputs. */
+.register-table input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.register-table input[type="number"]::-webkit-outer-spin-button,
+.register-table input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 .register-actions {
   margin-top: 12px;
@@ -543,7 +597,7 @@ strong {
 /* Register grid — mobile: stack each exercise as name + 3 rows of (reps | kg). */
 @media (max-width: 600px) {
   .register-sets-scroll { overflow-x: visible; }
-  .register-table { width: 100%; border-collapse: collapse; }
+  .register-table { width: 100%; border-collapse: collapse; table-layout: auto; }
   /* Hide the Serie/reps/kg header row; placeholders label the inputs instead. */
   .register-table thead { display: none; }
   /* Each exercise row becomes a 2-column grid block. */
@@ -555,21 +609,79 @@ strong {
     padding-bottom: 12px;
     border-bottom: 2px solid #333;
   }
-  .register-table tbody td { display: block; border: none; padding: 0; }
+  .register-table tbody td {
+    display: block;
+    border: none;
+    padding: 0;
+    width: auto;
+    white-space: normal;
+  }
   /* Exercise name spans the full width above its sets. */
-  .register-table td.register-exercise {
+  .register-table tbody td.register-exercise {
     grid-column: 1 / -1;
     text-align: left;
     font-weight: bold;
     margin-bottom: 2px;
   }
-  /* reps/kg inputs fill their cell; the 6 cells flow as 3 rows of 2 columns. */
-  .register-table td.register-cell-reps input,
-  .register-table td.register-cell-weight input {
+  /* Hide the muscle group on mobile (same as the Plan view). */
+  .register-table td.register-exercise .plan-muscle { display: none; }
+  /* Show the plan to the right of the exercise name (same line), not below. */
+  .register-table td.register-exercise .register-meta {
+    display: inline;
+    margin-top: 0;
+  }
+  .register-table td.register-exercise .register-meta .register-plan { margin-left: 6px; }
+  /* reps/kg inputs fill their cell. */
+  .register-table tbody td.register-cell-reps input,
+  .register-table tbody td.register-cell-weight input {
     width: 100%;
+    max-width: none;
     box-sizing: border-box;
     font-size: 14px;
     padding: 8px 6px;
+    text-align: center;
+  }
+  /* Keep the last-session hint beside the weight input, not below it. */
+  .register-table tbody td.register-cell-weight {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .register-table tbody td.register-cell-weight input { flex: 1 1 auto; width: auto; min-width: 0; }
+  .register-table tbody td.register-cell-weight .register-last-reps {
+    flex: 0 0 52px;
+    margin-left: 0;
+    text-align: right;
+    white-space: nowrap;
+  }
+  /* Collapse toggle: arrow to the right of the exercise name (menu style). */
+  .register-table td.register-exercise {
+    display: flex;
+    align-items: center;
+  }
+  .register-collapse {
+    display: inline-block;
+    margin-left: auto;
+    border: none;
+    background: none;
+    padding: 0 2px;
+    cursor: pointer;
+    color: inherit;
+    line-height: 1;
+  }
+  .register-collapse::after {
+    content: '›';
+    display: inline-block;
+    font-size: 18px;
+    transition: transform 0.2s ease;
+  }
+  .register-collapse.open::after {
+    transform: rotate(90deg);
+  }
+  /* Collapsed row: hide the set cells, keep only the name + arrow. */
+  .register-table tr.register-row--collapsed td.register-cell-reps,
+  .register-table tr.register-row--collapsed td.register-cell-weight {
+    display: none;
   }
 }
 
